@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mijn CGI · Smart Media Production — Max Helmantel</title>
+
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  CGI-PRESENTATIE als KINDERTEKENING — Smart Media Production (blok 8)  ║
+  ║  Zelfstandige pagina. Geen build, geen dependencies, geen localStorage.║
+  ╠══════════════════════════════════════════════════════════════════════╣
+  ║  8 aanklikbare doodles = de 8 verplichte CGI-onderdelen.               ║
+  ║  Vaste gedragsindicatoren (Lerend Vermogen): LV 1.3 en LV 4.3.         ║
+  ║                                                                        ║
+  ║  NOG TE DOEN:                                                          ║
+  ║  1) FOTO  -> assets/kind.jpg (kindfoto, vult de cirkel).              ║
+  ║  2) DELIVERABLES -> in het JS-object DATA staat per onderdeel een veld ║
+  ║     drop:'...'. Vervang de placeholder door een echte link/thumbnail.  ║
+  ║  3) TEKST -> velden body in DATA zijn een voorzet; maak ze van jezelf. ║
+  ║     LET OP het ethisch dilemma en de gespreksstarter: assessoren       ║
+  ║     vragen hierop door, dus zorg dat het écht jouw verhaal is.         ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+:root{
+  --paper:#fbf7ec; --ink:#4a4540; --pencil:#bdb6a8; --pencil-soft:#efe9db;
+  --shadow:0 10px 30px rgba(80,60,30,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:'Chalkboard SE','Comic Sans MS','Comic Neue','Patrick Hand',
+              'Bradley Hand','Segoe Print',cursive,system-ui,sans-serif;
+  color:var(--ink); background:var(--paper);
+  background-image:
+    radial-gradient(rgba(150,130,90,.05) 1px, transparent 1.4px),
+    radial-gradient(rgba(150,130,90,.04) 1px, transparent 1.4px);
+  background-size:7px 7px, 11px 11px; background-position:0 0, 3px 4px;
+  line-height:1.45; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:22px 18px 56px}
+
+header.top{text-align:center;margin:6px 0 4px}
+header.top h1{font-size:clamp(28px,5.6vw,50px);margin:0;letter-spacing:.5px;
+  color:#3b3631;transform:rotate(-1.2deg);text-shadow:1px 2px 0 rgba(0,0,0,.05)}
+header.top .sub{font-size:clamp(14px,2.3vw,18px);opacity:.8;margin:3px 0 0}
+header.top .hint{display:inline-block;margin-top:9px;font-size:14.5px;opacity:.9;
+  padding:5px 14px;border:2px dashed #d8cdb3;border-radius:20px;
+  transform:rotate(.5deg);background:rgba(255,255,255,.4)}
+header.top .lv{display:inline-block;margin-top:8px;font-size:13px;opacity:.85}
+.lvtag{display:inline-block;font-size:12.5px;padding:2px 9px;border-radius:20px;
+  border:2px solid #cdbf9e;background:rgba(255,255,255,.5);white-space:nowrap}
+
+.scene{width:100%;height:auto;display:block;margin:6px auto 0;max-width:1000px;touch-action:manipulation}
+
+.doodle{cursor:pointer;outline:none}
+.doodle .ln{fill:none;stroke:var(--pencil);stroke-width:4.2;
+  stroke-linecap:round;stroke-linejoin:round;transition:stroke .5s ease}
+.doodle .fl{fill:none;transition:fill .5s ease}
+.doodle .dlabel{fill:#8a8275;font-size:20px;text-anchor:middle;
+  transition:fill .4s ease;pointer-events:none}
+.doodle .badge{opacity:0;transform-box:fill-box;transform-origin:center;
+  transform:scale(.4);transition:opacity .35s ease, transform .35s ease}
+.doodle.done .ln{stroke:var(--c)}
+.doodle.done .fl{fill:var(--c-soft)}
+.doodle.done .dlabel{fill:var(--c)}
+.doodle.done .badge{opacity:1;transform:scale(1)}
+.doodle .art{transform-box:fill-box;transform-origin:center;transition:transform .25s ease}
+@media (hover:hover){.doodle:hover .art{transform:translateY(-4px) rotate(-1deg) scale(1.05)}}
+.doodle:focus-visible .art{transform:translateY(-4px) scale(1.06)}
+.doodle:focus-visible .ring-focus{opacity:1}
+.ring-focus{opacity:0;fill:#fff;fill-opacity:0;stroke:#1c7ed6;stroke-width:3;
+  stroke-dasharray:5 6;transition:opacity .2s;pointer-events:all;cursor:pointer}
+
+#tangle{transition:opacity .8s ease}
+#calm{opacity:0;transition:opacity .8s ease}
+.scene.bright #sunrays{animation:spin 26s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#sunrays{transform-box:fill-box;transform-origin:center}
+
+.legend{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:18px auto 0;max-width:880px}
+.chip{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font:inherit;font-size:15px;
+  color:var(--ink);background:rgba(255,255,255,.65);border:2.5px solid var(--pencil);
+  border-radius:30px;padding:6px 14px 7px;transition:border-color .35s,background .35s,transform .15s}
+.chip:hover{transform:translateY(-2px) rotate(-.5deg)}
+.chip:focus-visible{outline:3px dashed #1c7ed6;outline-offset:2px}
+.chip .dot{width:13px;height:13px;border-radius:50%;background:transparent;
+  border:2.5px solid var(--pencil);transition:background .35s,border-color .35s;flex:none}
+.chip.done{border-color:var(--c);background:var(--c-soft)}
+.chip.done .dot{background:var(--c);border-color:var(--c)}
+
+.progress{text-align:center;margin:14px 0 0;font-size:16px;min-height:22px;opacity:.9}
+
+.overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(60,45,25,.42);
+  padding:18px;z-index:50;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.overlay.open{display:grid}
+.card{width:min(540px,100%);max-height:88vh;overflow:auto;background:#fffdf6;border-radius:18px;
+  box-shadow:var(--shadow);border:3px solid var(--c,#e4c98b);padding:22px 22px 20px;
+  position:relative;transform:rotate(-.5deg)}
+.card h2{margin:.1em 0 .05em;font-size:26px;color:var(--c,#3b3631)}
+.card .sub2{margin:0 0 6px;font-size:15.5px;opacity:.7}
+.pill-lv{display:inline-block;font-size:12.5px;color:#3b6e2f;background:#e6f3df;
+  border:2px solid #bfe0b0;border-radius:20px;padding:2px 10px;margin:2px 0 12px}
+.card .body{font-size:16.5px;color:#48433d}
+.card .body p{margin:.4em 0 .8em}
+.drop{margin:13px 0 6px}
+.ph{border:2.5px dashed var(--c,#cdbf9e);border-radius:12px;padding:15px;text-align:center;
+  font-size:14.5px;color:#7d756a;background:rgba(0,0,0,.015)}
+.ph small{display:block;margin-top:6px;opacity:.75}
+.ph code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:5px}
+.btn,a.btn{display:inline-block;font:inherit;font-size:15.5px;cursor:pointer;background:var(--c,#e4572e);
+  color:#fff;text-decoration:none;border:none;border-radius:24px;padding:9px 20px;
+  box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.card .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;
+  padding-top:14px;border-top:2px dashed #e9e0c9}
+.btn.ghost{background:transparent;color:#6f675c;box-shadow:none;border:2.5px solid #d9cfb6}
+.btn.ok.is-on{background:#2f9e44}
+.btn.ok.is-on::after{content:'  ✓'}
+.closeX{position:absolute;top:10px;right:12px;border:none;background:none;font:inherit;
+  font-size:26px;line-height:1;cursor:pointer;color:#b1a892;padding:4px 8px;border-radius:50%}
+.closeX:hover{color:#6f675c;background:rgba(0,0,0,.05)}
+
+footer.sign{text-align:right;margin:30px 4px 0;opacity:.85}
+footer.sign .name{font-size:23px;transform:rotate(-3deg);display:inline-block}
+footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:560px){.card{transform:none}header.top h1{transform:rotate(-.6deg)}}
+@media print{.overlay{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Mijn CGI</h1>
+    <p class="sub">een kindertekening · Smart Media Production — Max Helmantel</p>
+    <div><span class="hint">Tik elk onderdeel aan en kleur mijn verhaal compleet 🖍️</span></div>
+    <div class="lv"><span class="lvtag">Lerend Vermogen aangetoond met&nbsp;<b>LV&nbsp;1.3</b>&nbsp;en&nbsp;<b>LV&nbsp;4.3</b></span></div>
+  </header>
+
+  <!-- ===================== DE TEKENING ===================== -->
+  <svg class="scene" viewBox="0 0 1000 940" role="group"
+       aria-label="Tekening met acht aanklikbare onderdelen van mijn CGI-presentatie">
+    <defs>
+      <filter id="rough" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <clipPath id="photoClip"><circle cx="500" cy="430" r="80"/></clipPath>
+    </defs>
+
+    <!-- ground tufts onder de figuur -->
+    <g filter="url(#rough)" opacity=".6">
+      <g stroke="#8fbf6a" stroke-width="3.4" stroke-linecap="round" fill="none">
+        <path d="M470,572 q5,-18 0,-30 M482,572 q11,-13 16,-25"/>
+        <path d="M520,572 q-5,-18 0,-30 M508,572 q-11,-13 -16,-25"/>
+      </g>
+    </g>
+
+    <!-- ===== gedachtenwolk ===== -->
+    <g fill="var(--paper)" stroke="#cabfa6" stroke-width="3" filter="url(#rough)">
+      <circle cx="505" cy="332" r="11" stroke="#cabfa6"/>
+      <circle cx="500" cy="305" r="8"  stroke="#cabfa6"/>
+      <circle cx="498" cy="284" r="6"  stroke="#cabfa6"/>
+    </g>
+    <g filter="url(#rough)" fill="var(--paper)" stroke="#bdb298" stroke-width="3.4">
+      <g stroke="#bdb298">
+        <circle cx="430" cy="170" r="42"/><circle cx="470" cy="138" r="46"/>
+        <circle cx="520" cy="130" r="50"/><circle cx="566" cy="146" r="44"/>
+        <circle cx="602" cy="172" r="40"/><circle cx="562" cy="202" r="46"/>
+        <circle cx="506" cy="210" r="50"/><circle cx="455" cy="202" r="44"/>
+      </g>
+    </g>
+    <g id="tangle" filter="url(#rough)" fill="none" stroke="#9a9183" stroke-width="3.4" stroke-linecap="round">
+      <path d="M468,170 q-14,-26 18,-30 q34,-4 30,24 q-3,26 -34,20 q-30,-6 -14,-34
+               q16,-26 46,-10 q26,14 8,40 q-18,24 -44,6"/>
+      <path d="M500,148 q22,10 14,34 M486,196 q-8,-22 18,-30"/>
+    </g>
+    <g id="calm" filter="url(#rough)">
+      <g id="sunrays" stroke="#f3a712" stroke-width="4" stroke-linecap="round">
+        <path d="M510,116 V98 M510,224 V242 M456,170 H438 M564,170 H582
+                 M472,132 L460,120 M548,132 L560,120 M472,208 L460,220 M548,208 L560,220"/>
+      </g>
+      <circle cx="510" cy="170" r="31" fill="#ffe08a" stroke="#f3a712" stroke-width="4"/>
+      <path d="M497,176 q13,14 26,0" fill="none" stroke="#b9770a" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="500" cy="163" r="3.2" fill="#b9770a"/><circle cx="520" cy="163" r="3.2" fill="#b9770a"/>
+    </g>
+
+    <!-- ===== de 'ik' : fotocirkel (= About me) ===== -->
+    <g id="facePlaceholder" filter="url(#rough)">
+      <circle cx="500" cy="430" r="80" fill="#fdeede"/>
+      <g class="ln" fill="none" stroke-width="4" stroke-linecap="round">
+        <circle cx="476" cy="421" r="5" fill="#cbbfa6" stroke="none"/>
+        <circle cx="524" cy="421" r="5" fill="#cbbfa6" stroke="none"/>
+        <path d="M474,456 q26,22 52,0"/>
+        <path d="M454,402 q14,-44 92,-12"/>
+      </g>
+    </g>
+    <image href="assets/kind.jpg" x="420" y="350" width="160" height="160"
+           clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"
+           onerror="this.style.display='none'"/>
+    <circle cx="500" cy="430" r="80" fill="none" stroke="#f59f00" stroke-width="6"
+            stroke-linecap="round" stroke-dasharray="3 12" filter="url(#rough)"/>
+    <path d="M454,498 q46,38 92,0 l10,30 H444 Z" fill="#ffe3b0" stroke="#e8b860"
+          stroke-width="3.5" filter="url(#rough)"/>
+
+    <!-- ====================  8 DOODLES  ===================== -->
+
+    <!-- (1) ABOUT ME — persoon : links boven -->
+    <g class="doodle hot" data-c="about" role="button" tabindex="0" aria-label="About me"
+       style="--c:#e8590c;--c-soft:#f8cba6" transform="translate(160 250)">
+      <rect class="ring-focus" x="-72" y="-72" width="150" height="190" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <circle class="ln fl" cx="0" cy="-28" r="23"/>
+        <path class="ln fl" d="M-40,48 q0,-44 40,-44 q40,0 40,44 Z"/>
+        <g class="badge"><circle cx="44" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M37,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="96">About me</text>
+    </g>
+
+    <!-- (2) POP & ROL — roos/target : links -->
+    <g class="doodle hot" data-c="pop" role="button" tabindex="0" aria-label="POP-leerdoelen en beroepsrol"
+       style="--c:#e03131;--c-soft:#f5b5b5" transform="translate(160 442)">
+      <rect class="ring-focus" x="-72" y="-72" width="150" height="194" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <circle class="ln fl" cx="0" cy="0" r="46"/>
+        <circle class="ln" cx="0" cy="0" r="30"/>
+        <circle class="ln fl" cx="0" cy="0" r="15"/>
+        <circle class="ln" cx="0" cy="0" r="3.5"/>
+        <g class="badge"><circle cx="46" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M39,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="98">POP &amp; rol</text>
+    </g>
+
+    <!-- (3) LEERDOEL 1 — vlag : links -->
+    <g class="doodle hot" data-c="leerdoel1" role="button" tabindex="0" aria-label="Leerdoel 1, proces en bewijslast"
+       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(160 632)">
+      <rect class="ring-focus" x="-66" y="-78" width="146" height="200" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <path class="ln" d="M-30,54 V-52"/>
+        <path class="ln fl" d="M-30,-52 H40 L26,-32 L40,-12 H-30 Z"/>
+        <g class="badge"><circle cx="46" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M39,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="100">Leerdoel 1</text>
+    </g>
+
+    <!-- (4) LEERDOEL 2 — vlag (teal) : links onder -->
+    <g class="doodle hot" data-c="leerdoel2" role="button" tabindex="0" aria-label="Leerdoel 2, proces en bewijslast"
+       style="--c:#0c8599;--c-soft:#ace3ec" transform="translate(160 812)">
+      <rect class="ring-focus" x="-66" y="-78" width="146" height="200" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <path class="ln" d="M-30,54 V-52"/>
+        <path class="ln fl" d="M-30,-52 H40 L26,-32 L40,-12 H-30 Z"/>
+        <path class="ln" d="M-12,-40 v18 M-12,-40 h10 M-12,-31 h8"/>
+        <g class="badge"><circle cx="46" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M39,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="100">Leerdoel 2</text>
+    </g>
+
+    <!-- (5) REFLECTIE — spiegel : rechts boven -->
+    <g class="doodle hot" data-c="reflectie" role="button" tabindex="0" aria-label="Reflectie"
+       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(840 250)">
+      <rect class="ring-focus" x="-62" y="-74" width="140" height="196" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <ellipse class="ln fl" cx="0" cy="-14" rx="34" ry="40"/>
+        <path class="ln" d="M0,26 V52 M-13,52 H13"/>
+        <path class="ln" d="M-15,-30 q-9,15 4,32"/>
+        <g class="badge"><circle cx="40" cy="-42" r="13" fill="#2f9e44"/>
+          <path d="M33,-42 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="98">Reflectie</text>
+    </g>
+
+    <!-- (6) ETHISCH DILEMMA — weegschaal : rechts -->
+    <g class="doodle hot" data-c="ethisch" role="button" tabindex="0" aria-label="Ethisch dilemma"
+       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(840 442)">
+      <rect class="ring-focus" x="-74" y="-72" width="158" height="194" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <path class="ln" d="M0,-50 V40 M-18,46 H18 M-42,-40 H42"/>
+        <path class="ln fl" d="M-42,-40 L-56,-6 H-28 Z"/>
+        <path class="ln fl" d="M42,-40 L56,-6 H28 Z"/>
+        <circle class="ln" cx="0" cy="-50" r="4"/>
+        <g class="badge"><circle cx="54" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M47,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="98">Ethisch dilemma</text>
+    </g>
+
+    <!-- (7) VISIE — oog : rechts -->
+    <g class="doodle hot" data-c="visie" role="button" tabindex="0" aria-label="Visie als mediamaker"
+       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(840 632)">
+      <rect class="ring-focus" x="-72" y="-66" width="152" height="186" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <path class="ln" d="M-50,0 Q0,-38 50,0 Q0,38 -50,0 Z"/>
+        <circle class="ln fl" cx="0" cy="0" r="17"/>
+        <circle class="ln" cx="0" cy="0" r="5"/>
+        <g class="badge"><circle cx="50" cy="-30" r="13" fill="#2f9e44"/>
+          <path d="M43,-30 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="92">Visie</text>
+    </g>
+
+    <!-- (8) GESPREKSSTARTER — tekstballon : rechts onder -->
+    <g class="doodle hot" data-c="gesprek" role="button" tabindex="0" aria-label="Gespreksstarter"
+       style="--c:#f08c00;--c-soft:#ffe0a6" transform="translate(840 812)">
+      <rect class="ring-focus" x="-70" y="-66" width="150" height="190" rx="16"/>
+      <g class="art" filter="url(#rough)">
+        <path class="ln fl" d="M-44,-34 H44 q11,0 11,11 V18 q0,11 -11,11 H4 L-12,48 L-9,29 H-44
+                 q-11,0 -11,-11 V-23 q0,-11 11,-11 Z"/>
+        <circle class="ln" cx="-16" cy="-3" r="3.6"/><circle class="ln" cx="2" cy="-3" r="3.6"/>
+        <circle class="ln" cx="20" cy="-3" r="3.6"/>
+        <g class="badge"><circle cx="48" cy="-44" r="13" fill="#2f9e44"/>
+          <path d="M41,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/></g>
+      </g>
+      <text class="dlabel" y="98">Gespreksstarter</text>
+    </g>
+
+  </svg>
+  <!-- ===================== /DE TEKENING ===================== -->
+
+  <div class="legend" id="legend" aria-label="Legenda — ook aanklikbaar"></div>
+  <p class="progress" id="progress" aria-live="polite"></p>
+
+</div><!-- /wrap -->
+
+<footer class="sign wrap" style="padding-top:0">
+  <span class="name">— Max</span><img src="assets/kaires-logo.png" alt="" onerror="this.style.display='none'">
+</footer>
+
+<!-- ===================== PANEEL ===================== -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="card" id="card" style="--c:#e4572e">
+    <button class="closeX" id="closeX" aria-label="Sluiten">×</button>
+    <h2 id="pTitle">Titel</h2>
+    <p class="sub2" id="pSub">subtitel</p>
+    <span class="pill-lv" id="pLv" hidden></span>
+    <div class="body" id="pBody"></div>
+    <div class="drop" id="pDrop"></div>
+    <div class="actions">
+      <button class="btn ok" id="pOk" type="button">Zo is het</button>
+      <button class="btn ghost" id="pClose" type="button">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   DATA — pas hier de TEKST (body), de DELIVERABLES (drop) en evt. de
+   gedragsindicator (lv) per onderdeel aan. Volgorde = volgorde legenda.
+   ====================================================================== */
+const DATA = {
+  about: {
+    title:"About me", sub:"Wie ben ik", color:"#e8590c", soft:"#f8cba6",
+    body:`<p>Ik ben <b>Max Helmantel</b>, afstudeerder Smart Media Production en
+          medeoprichter van <b>Kaires</b> — slimme muziekprofilering voor retail.
+          Ik beweeg op het snijvlak van <b>creativiteit, design en AI</b> en
+          vertaal nieuwe technologie snel naar werkende concepten. Mijn rode draad
+          dit blok: groeien als <i>creative in the loop</i>.</p>`,
+    drop:`<div class="ph">Optioneel: een beeld of korte intro-video van jezelf
+            <small>vervang <code>drop</code> bij <code>about</code> in DATA</small></div>`
+  },
+  pop: {
+    title:"POP-leerdoelen & beroepsrol", sub:"Waar ik naartoe werk",
+    color:"#e03131", soft:"#f5b5b5", lv:"LV 1.3",
+    body:`<p>Mijn <b>beroepsrol</b>: <i>creative in the loop</i> — AI content creator
+          en smart audio producer die creativiteit, design en techniek verbindt.</p>
+          <p>Twee leerdoelen staan centraal:</p>
+          <p>1. Mij positioneren als creative in the loop.<br>
+             2. Bewuster werken vanuit rust &amp; focus, en mezelf zichtbaar maken.</p>`,
+    drop:`<div class="ph">Link naar je POP (Persoonlijk Ontwikkelplan)
+            <small>bijv. <code>&lt;a class="btn" href="assets/POP.pdf" target="_blank"&gt;Open POP&lt;/a&gt;</code></small></div>`
+  },
+  leerdoel1: {
+    title:"Leerdoel 1 — Creative in the loop", sub:"Proces & bewijslast",
+    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3",
+    body:`<p><b>Wat:</b> laten zien dat creativiteit relevant blijft in een tijd van AI.</p>
+          <p><b>Proces:</b> met Kaires bouwde ik van concept naar werkend product —
+          de <b>Camino</b>-route en <b>Back to Being</b> — en gaf ik <b>trainingen</b>
+          over AI, design en creativiteit.</p>
+          <p><b>Bewijslast:</b> het Kaires-product, de pilot bij <b>Beauty X</b>
+          (+3,7% transactiewaarde) en mijn trainingen.</p>`,
+    drop:`<div class="ph">Beeld Camino/Back to Being + pilotresultaat
+            <small>vervang <code>drop</code> bij <code>leerdoel1</code> in DATA</small></div>`
+  },
+  leerdoel2: {
+    title:"Leerdoel 2 — Rust, focus & zichtbaarheid", sub:"Proces & bewijslast",
+    color:"#0c8599", soft:"#ace3ec", lv:"LV 1.3",
+    body:`<p><b>Wat:</b> motivatie en energie bepalen de kwaliteit van mijn werk, dus
+          wilde ik bewuster kiezen waar ik energie in stop — én zichtbaarder worden.</p>
+          <p><b>Proces:</b> ik maakte mijn werk zichtbaar via <b>LinkedIn</b>, mijn
+          <b>portfolio (Framer)</b> en <b>netwerkopbouw</b> (AI Salon, hackathons,
+          events) met mentoren als Caesar, Stijn en Jurgen.</p>
+          <p><b>Bewijslast:</b> LinkedIn-posts, portfolio en netwerkverslag.</p>`,
+    drop:`<div class="ph">LinkedIn-post / portfolio / netwerkverslag
+            <small>vervang <code>drop</code> bij <code>leerdoel2</code> in DATA</small></div>`
+  },
+  reflectie: {
+    title:"Reflectie", sub:"Wat ik over mezelf leerde",
+    color:"#7048e8", soft:"#d3c7f9", lv:"LV 1.3",
+    body:`<p>Hard werken is niet hetzelfde als goed werken. Mijn beste werk ontstaat
+          bij onderwerpen waar ik écht <b>nieuwsgierig</b> naar ben. Door steeds
+          <b>feedback</b> te vragen en bij te sturen, kreeg ik meer
+          <b>inzicht in mijn eigen leerproces</b> — en leerde ik ambitie en rust
+          te combineren.</p>`,
+    drop:`<div class="ph">Feedback-bewijs (bijv. een verwerkt feedbackmoment)
+            <small>vervang <code>drop</code> bij <code>reflectie</code> in DATA</small></div>`
+  },
+  ethisch: {
+    title:"Ethisch dilemma", sub:"AI, muziek & makers",
+    color:"#1c7ed6", soft:"#b8dbf7", lv:"LV 4.3",
+    body:`<p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept
+          een vraag op: wat betekent dit voor de <b>waarde van menselijke makers</b>
+          en muzikanten? Mag je AI-muziek inzetten zonder het te labelen?</p>
+          <p>Ik weeg <b>efficiëntie en kosten</b> af tegen <b>eerlijkheid naar
+          artiesten</b> en <b>transparantie naar de luisteraar</b>, en kies bewust
+          voor transparant gebruik.</p>`,
+    drop:`<div class="ph">Optioneel: jouw afweging of bronnen
+            <small>⚠️ maak dit echt van jezelf — hier wordt op doorgevraagd</small></div>`
+  },
+  visie: {
+    title:"Visie als mediamaker", sub:"Creative in the loop",
+    color:"#d6336c", soft:"#f4b9d0", lv:"LV 4.3",
+    body:`<p>Ik geloof dat AI het <b>uitvoeren</b> overneemt, maar dat de <b>mens</b>
+          nodig blijft om te sturen met <b>smaak, ethiek en betekenis</b>. De creatief
+          verschuift van maker naar <b>regisseur</b> van technologie.</p>
+          <p>Niet voor niets is deze presentatie zelf een kindertekening: de menselijke
+          maat in een wereld vol AI. Daar wil ik in vooroplopen.</p>`,
+    drop:`<div class="ph">Optioneel: keynote-foto of visiebeeld
+            <small>vervang <code>drop</code> bij <code>visie</code> in DATA</small></div>`
+  },
+  gesprek: {
+    title:"Gespreksstarter", sub:"Vraag voor het gesprek",
+    color:"#f08c00", soft:"#ffe0a6",
+    body:`<p style="font-size:18px"><i>"Als AI straks elke noot kan genereren, is de
+          creatief dan nog <b>maker</b> of vooral <b>curator</b> — en waar ligt dan
+          de waarde?"</i></p>
+          <p>Hier ga ik graag met jullie het gesprek over aan.</p>`,
+    drop:`<div class="ph">Optioneel: vervang door jouw eigen gespreksstarter
+            <small>vervang <code>drop</code> bij <code>gesprek</code> in DATA</small></div>`
+  }
+};
+
+/* ====================== logica ====================== */
+const order = Object.keys(DATA);
+const done  = new Set();
+const svg   = document.querySelector('.scene');
+const $ = s => document.querySelector(s);
+
+const legend = $('#legend');
+order.forEach(c=>{
+  const d = DATA[c];
+  const b = document.createElement('button');
+  b.className='chip'; b.dataset.c=c; b.type='button';
+  b.style.setProperty('--c', d.color); b.style.setProperty('--c-soft', d.soft);
+  b.innerHTML = `<span class="dot"></span>${d.title.split(' — ')[0]}`;
+  b.addEventListener('click', ()=>open(c));
+  legend.appendChild(b);
+});
+
+const overlay=$('#overlay'), card=$('#card');
+let current=null;
+
+function open(c){
+  current=c; const d=DATA[c];
+  card.style.setProperty('--c', d.color);
+  $('#pTitle').textContent=d.title;
+  $('#pSub').textContent=d.sub;
+  const lv=$('#pLv');
+  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; }
+  else lv.hidden=true;
+  $('#pBody').innerHTML=d.body;
+  $('#pDrop').innerHTML=d.drop;
+  const ok=$('#pOk');
+  ok.classList.toggle('is-on', done.has(c));
+  ok.setAttribute('aria-pressed', done.has(c));
+  overlay.classList.add('open');
+  $('#closeX').focus();
+}
+function close(){ overlay.classList.remove('open');
+  if(current){ const el=document.querySelector(`.doodle[data-c="${current}"]`); el&&el.focus(); } }
+function confirm(c){
+  if(done.has(c)) done.delete(c); else done.add(c);
+  render();
+  const ok=$('#pOk'); ok.classList.toggle('is-on', done.has(c)); ok.setAttribute('aria-pressed', done.has(c));
+}
+function render(){
+  order.forEach(c=>{
+    const on = done.has(c);
+    document.querySelector(`.doodle[data-c="${c}"]`).classList.toggle('done', on);
+    document.querySelector(`.chip[data-c="${c}"]`).classList.toggle('done', on);
+  });
+  const n=done.size, total=order.length, p=n/total;
+  $('#tangle').style.opacity = 1-p;
+  $('#calm').style.opacity   = p;
+  svg.classList.toggle('bright', n===total);
+  const prog=$('#progress');
+  if(n===0)      prog.textContent='Nog niets ingekleurd — begin bij een onderdeel.';
+  else if(n<total) prog.textContent=`${n} van de ${total} onderdelen behandeld — de lucht klaart op…`;
+  else           prog.textContent='Alle 8 onderdelen behandeld — de gedachtenwolk werd een zonnetje ☀️';
+}
+
+document.querySelectorAll('.doodle.hot').forEach(el=>{
+  const c=el.dataset.c;
+  el.addEventListener('click', ()=>open(c));
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(c); }});
+});
+$('#pOk').addEventListener('click', ()=>confirm(current));
+$('#pClose').addEventListener('click', close);
+$('#closeX').addEventListener('click', close);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && overlay.classList.contains('open')) close(); });
+
+render();
+</script>
+</body>
+</html>
