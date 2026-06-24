@@ -8,10 +8,23 @@
 <!--
   CGI-PRESENTATIE als kindertekening — Smart Media Production (blok 8).
   Zelfstandig: geen build, geen dependencies, geen localStorage.
-  Het midden (de fotocirkel) = onderdeel "About me" (klikbaar).
-  7 doodles eromheen = de andere 7 CGI-onderwerpen. Samen 8.
-  Vaste gedragsindicatoren Lerend Vermogen: LV 1.3 en LV 4.3.
-  Tekst + bewijs staan onderaan in het JS-object DATA. Foto -> assets/kind.jpg.
+
+  >> JOUW EIGEN TEKENINGEN <<
+  Elke tekening is een AFBEELDING. Leg je handgetekende plaatjes in assets/ met
+  exact deze namen (zie ook BENODIGDE_TEKENINGEN.md):
+     assets/pop.png         POP-leerdoelen & beroepsrol
+     assets/leerdoel1.png   Leerdoel 1
+     assets/leerdoel2.png   Leerdoel 2
+     assets/reflectie.png   Reflectie
+     assets/ethisch.png     Ethisch dilemma
+     assets/visie.png       Visie
+     assets/gesprek.png     (optioneel) Gespreksstarter
+     assets/kind.jpg        About me (foto of tekening van jezelf)
+  Vierkant, transparante of witte achtergrond, ~600x600 px of groter.
+  Zolang een plaatje ontbreekt, zie je een nette "plak hier"-placeholder.
+
+  PRESENTATIEMODUS: knop rechtsboven (of toets P). Pijltjes ← → / spatie,
+  Esc om te sluiten. Loopt door alle 8 onderdelen heen.
 -->
 
 <style>
@@ -31,9 +44,17 @@ body{
   background-size:7px 7px, 11px 11px; background-position:0 0, 3px 4px;
   line-height:1.45; -webkit-text-size-adjust:100%;
 }
-.wrap{max-width:1040px;margin:0 auto;padding:22px 18px 56px}
+.wrap{max-width:1040px;margin:0 auto;padding:18px 18px 56px}
 
-header.top{text-align:center;margin:6px 0 4px}
+/* presentatie-knop */
+.topbar{display:flex;justify-content:flex-end;margin-bottom:-6px}
+.present-btn{font:inherit;font-size:15px;cursor:pointer;color:#fff;background:#3b6e2f;
+  border:none;border-radius:24px;padding:8px 18px;box-shadow:0 4px 0 rgba(0,0,0,.15);
+  transition:transform .12s}
+.present-btn:hover{transform:translateY(-1px)}
+.present-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.15)}
+
+header.top{text-align:center;margin:0 0 2px}
 header.top h1{font-size:clamp(28px,5.6vw,50px);margin:0;letter-spacing:.5px;
   color:#3b3631;transform:rotate(-1.2deg);text-shadow:1px 2px 0 rgba(0,0,0,.05)}
 header.top .sub{font-size:clamp(14px,2.3vw,18px);opacity:.8;margin:3px 0 0}
@@ -47,20 +68,24 @@ header.top .lv{margin-top:8px}
 .scene{width:100%;height:auto;display:block;margin:6px auto 0;max-width:1000px;touch-action:manipulation}
 
 .doodle{cursor:pointer;outline:none}
-.doodle .ln{fill:none;stroke:var(--pencil);stroke-width:4.2;
-  stroke-linecap:round;stroke-linejoin:round;transition:stroke .5s ease}
-.doodle .fl{fill:none;transition:fill .5s ease}
 .doodle .dlabel{fill:#8a8275;font-size:20px;text-anchor:middle;
   transition:fill .4s ease;pointer-events:none}
+.doodle.done .dlabel{fill:var(--c)}
 .doodle .badge{opacity:0;transform-box:fill-box;transform-origin:center;
   transform:scale(.4);transition:opacity .35s ease, transform .35s ease}
-.doodle.done .ln{stroke:var(--c)}
-.doodle.done .fl{fill:var(--c-soft)}
-.doodle.done .dlabel{fill:var(--c)}
 .doodle.done .badge{opacity:1;transform:scale(1)}
-.doodle .art{transform-box:fill-box;transform-origin:center;transition:transform .25s ease}
-@media (hover:hover){.doodle:hover .art{transform:translateY(-4px) rotate(-1deg) scale(1.05)}}
-.doodle:focus-visible .art{transform:translateY(-4px) scale(1.06)}
+
+/* afbeelding-slot voor jouw tekening */
+.slot{transform-box:fill-box;transform-origin:center;transition:transform .25s ease}
+.slot .draw{filter:grayscale(.85);opacity:.5;transition:filter .5s ease,opacity .5s ease}
+.doodle.done .slot .draw{filter:none;opacity:1}
+.slot .ph{transition:opacity .3s ease}
+.slot.loaded .ph{opacity:0;pointer-events:none}
+.ph rect{fill:rgba(255,255,255,.45);stroke:var(--c,#cdbf9e);stroke-width:2.5;stroke-dasharray:6 7}
+.ph-name{fill:#8a8275;font-size:15px;text-anchor:middle;font-family:ui-monospace,Menlo,monospace}
+.ph-hint{fill:#aaa092;font-size:13px;text-anchor:middle}
+@media (hover:hover){.doodle:hover .slot{transform:translateY(-4px) rotate(-1deg) scale(1.04)}}
+.doodle:focus-visible .slot{transform:translateY(-4px) scale(1.05)}
 .doodle:focus-visible .ring-focus{opacity:1}
 .ring-focus{opacity:0;fill:#fff;fill-opacity:0;stroke:#1c7ed6;stroke-width:3;
   stroke-dasharray:5 6;transition:opacity .2s;pointer-events:all;cursor:pointer}
@@ -72,7 +97,7 @@ header.top .lv{margin-top:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 #sunrays{transform-box:fill-box;transform-origin:center}
 
-.legend{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:18px auto 0;max-width:880px}
+.legend{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:18px auto 0;max-width:900px}
 .chip{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font:inherit;font-size:15px;
   color:var(--ink);background:rgba(255,255,255,.65);border:2.5px solid var(--pencil);
   border-radius:30px;padding:6px 14px 7px;transition:border-color .35s,background .35s,transform .15s}
@@ -85,6 +110,7 @@ header.top .lv{margin-top:8px}
 
 .progress{text-align:center;margin:14px 0 0;font-size:16px;min-height:22px;opacity:.9}
 
+/* paneel (klik op tekening) */
 .overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(60,45,25,.42);
   padding:18px;z-index:50;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .overlay.open{display:grid}
@@ -96,20 +122,18 @@ header.top .lv{margin-top:8px}
 .pill-lv{display:inline-block;font-size:12.5px;color:#3b6e2f;background:#e6f3df;
   border:2px solid #bfe0b0;border-radius:20px;padding:2px 10px;margin:2px 0 12px}
 .pill-lv[hidden]{display:none}
-.card .body{font-size:16.5px;color:#48433d}
-.card .body p{margin:.4em 0 .8em}
+.body{font-size:16.5px;color:#48433d}
+.body p{margin:.4em 0 .8em}
 .drop{margin:14px 0 4px}
 .btnrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .btn,a.btn{display:inline-block;font:inherit;font-size:15px;cursor:pointer;background:var(--c,#e4572e);
   color:#fff;text-decoration:none;border:none;border-radius:24px;padding:9px 18px;
   box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .12s,box-shadow .12s}
-.btn:hover{transform:translateY(-1px)}
-.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
 .btn.ghost{background:transparent;color:#6f675c;box-shadow:none;border:2.5px solid #d9cfb6}
-.card .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;
   padding-top:14px;border-top:2px dashed #e9e0c9}
-.btn.ok.is-on{background:#2f9e44}
-.btn.ok.is-on::after{content:'  ✓'}
+.btn.ok.is-on{background:#2f9e44}.btn.ok.is-on::after{content:'  ✓'}
 .closeX{position:absolute;top:10px;right:12px;border:none;background:none;font:inherit;
   font-size:26px;line-height:1;cursor:pointer;color:#b1a892;padding:4px 8px;border-radius:50%}
 .closeX:hover{color:#6f675c;background:rgba(0,0,0,.05)}
@@ -118,13 +142,50 @@ footer.sign{text-align:right;margin:30px 4px 0;opacity:.85}
 footer.sign .name{font-size:23px;transform:rotate(-3deg);display:inline-block}
 footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
 
+/* ===== PRESENTATIEMODUS ===== */
+.present{position:fixed;inset:0;z-index:90;background:var(--paper);
+  background-image:radial-gradient(rgba(150,130,90,.05) 1px,transparent 1.4px);
+  background-size:8px 8px;display:flex;flex-direction:column}
+.present[hidden]{display:none}
+.pres-exit{position:absolute;top:14px;right:18px;z-index:2;border:none;background:rgba(255,255,255,.6);
+  font:inherit;font-size:24px;line-height:1;cursor:pointer;color:#6f675c;padding:6px 12px;border-radius:50%}
+.pres-stage{flex:1;display:flex;gap:36px;align-items:center;justify-content:center;
+  padding:46px 40px 10px;max-width:1120px;margin:0 auto;width:100%}
+.pres-figure{flex:0 0 42%;display:flex;align-items:center;justify-content:center;min-height:30vh}
+.pres-figure img{max-width:100%;max-height:48vh;border-radius:14px}
+.pres-figure img.round{border-radius:50%;border:6px solid #f59f00;width:min(40vh,320px);height:min(40vh,320px);object-fit:cover}
+.pres-figure.noimg{flex-direction:column;color:#b6ab97}
+.pres-figure.noimg::before{content:'✎';font-size:96px;opacity:.5}
+.pres-figure.noimg::after{content:attr(data-name);font-family:ui-monospace,Menlo,monospace;font-size:15px;margin-top:6px}
+.pres-copy{flex:1;max-width:560px}
+.pres-count{font-size:14px;opacity:.55;letter-spacing:.5px}
+.pres-copy h2{font-size:clamp(26px,4vw,38px);margin:.1em 0 .1em;color:#3b3631}
+.pres-sub{font-size:18px;opacity:.7;margin:0 0 10px}
+.pres-body{font-size:clamp(17px,2.1vw,20px);color:#46413b}
+.pres-body p{margin:.4em 0 .7em}
+.pres-drop{margin-top:14px}
+.pres-nav{display:flex;gap:20px;align-items:center;justify-content:center;padding:10px 0 24px}
+.pres-arrow{font:inherit;font-size:22px;cursor:pointer;width:54px;height:54px;border-radius:50%;
+  border:2.5px solid #d3c9b2;background:#fff;color:#5a5247;box-shadow:0 4px 0 rgba(0,0,0,.08);transition:transform .12s}
+.pres-arrow:hover{transform:translateY(-1px)}.pres-arrow:active{transform:translateY(2px);box-shadow:none}
+.pres-dots{display:flex;gap:9px;align-items:center}
+.pres-dots b{width:11px;height:11px;border-radius:50%;background:#d8cdb3;cursor:pointer;transition:background .2s,transform .2s}
+.pres-dots b.on{background:#3b6e2f;transform:scale(1.25)}
+
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:760px){
+  .pres-stage{flex-direction:column;gap:14px;padding:54px 20px 8px}
+  .pres-figure{flex:none;min-height:0}.pres-figure img{max-height:30vh}
+  .pres-figure img.round{width:34vh;height:34vh}
+}
 @media (max-width:560px){.card{transform:none}header.top h1{transform:rotate(-.6deg)}}
-@media print{.overlay{display:none!important}body{background:#fff}}
+@media print{.overlay,.present{display:none!important}body{background:#fff}}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <div class="topbar"><button class="present-btn" id="presBtn">▶ Presentatiemodus</button></div>
 
   <header class="top">
     <h1>Mijn CGI</h1>
@@ -134,190 +195,155 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
   </header>
 
   <!-- ===================== DE TEKENING ===================== -->
-  <svg class="scene" viewBox="0 0 1000 840" role="group"
-       aria-label="Zelfportret met zeven aanklikbare tekeningen; de acht onderdelen van mijn CGI-presentatie">
+  <svg class="scene" viewBox="0 0 1000 730" role="group"
+       aria-label="Zelfportret met zes aanklikbare tekeningen">
     <defs>
       <filter id="rough" x="-8%" y="-8%" width="116%" height="116%">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="n"/>
         <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
-      <clipPath id="photoClip"><circle cx="500" cy="420" r="80"/></clipPath>
+      <clipPath id="photoClip"><circle cx="500" cy="400" r="80"/></clipPath>
     </defs>
 
-    <!-- grassprietjes onder de figuur -->
     <g filter="url(#rough)" opacity=".6">
       <g stroke="#8fbf6a" stroke-width="3.4" stroke-linecap="round" fill="none">
-        <path d="M470,560 q5,-18 0,-30 M482,560 q11,-13 16,-25"/>
-        <path d="M520,560 q-5,-18 0,-30 M508,560 q-11,-13 -16,-25"/>
+        <path d="M470,540 q5,-18 0,-30 M482,540 q11,-13 16,-25"/>
+        <path d="M520,540 q-5,-18 0,-30 M508,540 q-11,-13 -16,-25"/>
       </g>
     </g>
 
-    <!-- ===== gedachtenwolk ===== -->
+    <!-- gedachtenwolk -->
     <g fill="var(--paper)" stroke="#cabfa6" stroke-width="3" filter="url(#rough)">
-      <circle cx="505" cy="320" r="11" stroke="#cabfa6"/>
-      <circle cx="500" cy="296" r="8"  stroke="#cabfa6"/>
-      <circle cx="498" cy="277" r="6"  stroke="#cabfa6"/>
+      <circle cx="505" cy="300" r="11" stroke="#cabfa6"/>
+      <circle cx="500" cy="277" r="8"  stroke="#cabfa6"/>
+      <circle cx="498" cy="259" r="6"  stroke="#cabfa6"/>
     </g>
     <g filter="url(#rough)" fill="var(--paper)" stroke="#bdb298" stroke-width="3.4">
       <g stroke="#bdb298">
-        <circle cx="430" cy="150" r="42"/><circle cx="470" cy="118" r="46"/>
-        <circle cx="520" cy="110" r="50"/><circle cx="566" cy="126" r="44"/>
-        <circle cx="602" cy="152" r="40"/><circle cx="562" cy="182" r="46"/>
-        <circle cx="506" cy="190" r="50"/><circle cx="455" cy="182" r="44"/>
+        <circle cx="430" cy="140" r="42"/><circle cx="470" cy="108" r="46"/>
+        <circle cx="520" cy="100" r="50"/><circle cx="566" cy="116" r="44"/>
+        <circle cx="602" cy="142" r="40"/><circle cx="562" cy="172" r="46"/>
+        <circle cx="506" cy="180" r="50"/><circle cx="455" cy="172" r="44"/>
       </g>
     </g>
     <g id="tangle" filter="url(#rough)" fill="none" stroke="#9a9183" stroke-width="3.4" stroke-linecap="round">
-      <path d="M468,150 q-14,-26 18,-30 q34,-4 30,24 q-3,26 -34,20 q-30,-6 -14,-34
+      <path d="M468,140 q-14,-26 18,-30 q34,-4 30,24 q-3,26 -34,20 q-30,-6 -14,-34
                q16,-26 46,-10 q26,14 8,40 q-18,24 -44,6"/>
-      <path d="M500,128 q22,10 14,34 M486,176 q-8,-22 18,-30"/>
+      <path d="M500,118 q22,10 14,34 M486,166 q-8,-22 18,-30"/>
     </g>
     <g id="calm" filter="url(#rough)">
       <g id="sunrays" stroke="#f3a712" stroke-width="4" stroke-linecap="round">
-        <path d="M510,96 V78 M510,204 V222 M456,150 H438 M564,150 H582
-                 M472,112 L460,100 M548,112 L560,100 M472,188 L460,200 M548,188 L560,200"/>
+        <path d="M510,86 V68 M510,194 V212 M456,140 H438 M564,140 H582
+                 M472,102 L460,90 M548,102 L560,90 M472,178 L460,190 M548,178 L560,190"/>
       </g>
-      <circle cx="510" cy="150" r="31" fill="#ffe08a" stroke="#f3a712" stroke-width="4"/>
-      <path d="M497,156 q13,14 26,0" fill="none" stroke="#b9770a" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="500" cy="143" r="3.2" fill="#b9770a"/><circle cx="520" cy="143" r="3.2" fill="#b9770a"/>
+      <circle cx="510" cy="140" r="31" fill="#ffe08a" stroke="#f3a712" stroke-width="4"/>
+      <path d="M497,146 q13,14 26,0" fill="none" stroke="#b9770a" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="500" cy="133" r="3.2" fill="#b9770a"/><circle cx="520" cy="133" r="3.2" fill="#b9770a"/>
     </g>
 
-    <!-- ===== ABOUT ME : de fotocirkel in het midden (klikbaar) ===== -->
+    <!-- ABOUT ME : fotocirkel midden (klikbaar) -->
     <g class="doodle hot" data-c="about" role="button" tabindex="0" aria-label="About me — dat ben ik"
        style="--c:#e8590c;--c-soft:#f8cba6">
-      <rect class="ring-focus" x="402" y="332" width="196" height="250" rx="46"/>
+      <rect class="ring-focus" x="402" y="312" width="196" height="250" rx="46"/>
       <g id="facePlaceholder" filter="url(#rough)">
-        <circle cx="500" cy="420" r="80" fill="#fdeede"/>
+        <circle cx="500" cy="400" r="80" fill="#fdeede"/>
         <g class="ln" fill="none" stroke-width="4" stroke-linecap="round">
-          <circle cx="476" cy="411" r="5" fill="#cbbfa6" stroke="none"/>
-          <circle cx="524" cy="411" r="5" fill="#cbbfa6" stroke="none"/>
-          <path d="M474,448 q26,22 52,0"/>
-          <path d="M454,392 q14,-44 92,-12"/>
+          <circle cx="476" cy="391" r="5" fill="#cbbfa6" stroke="none"/>
+          <circle cx="524" cy="391" r="5" fill="#cbbfa6" stroke="none"/>
+          <path d="M474,428 q26,22 52,0"/>
+          <path d="M454,372 q14,-44 92,-12"/>
         </g>
       </g>
-      <image href="assets/kind.jpg" x="420" y="340" width="160" height="160"
+      <image href="assets/kind.jpg" x="420" y="320" width="160" height="160"
              clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"
              onerror="this.style.display='none'"/>
-      <circle cx="500" cy="420" r="80" fill="none" stroke="#f59f00" stroke-width="6"
+      <circle cx="500" cy="400" r="80" fill="none" stroke="#f59f00" stroke-width="6"
               stroke-linecap="round" stroke-dasharray="3 12" filter="url(#rough)"/>
-      <path d="M454,488 q46,38 92,0 l10,30 H444 Z" fill="#ffe3b0" stroke="#e8b860"
+      <path d="M454,468 q46,38 92,0 l10,30 H444 Z" fill="#ffe3b0" stroke="#e8b860"
             stroke-width="3.5" filter="url(#rough)"/>
-      <g class="badge"><circle cx="566" cy="356" r="14" fill="#2f9e44"/>
-        <path d="M558,356 l6,7 l10,-13" stroke="#fff" stroke-width="3.6" fill="none"
+      <g class="badge"><circle cx="566" cy="336" r="14" fill="#2f9e44"/>
+        <path d="M558,336 l6,7 l10,-13" stroke="#fff" stroke-width="3.6" fill="none"
               stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" x="500" y="556">About me</text>
+      <text class="dlabel" x="500" y="536">About me</text>
     </g>
 
-    <!-- ====================  7 DOODLES  ===================== -->
-
-    <!-- POP & rol — raket : links boven -->
+    <!-- 6 tekening-slots -->
     <g class="doodle hot" data-c="pop" role="button" tabindex="0" aria-label="POP-leerdoelen en beroepsrol"
-       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(158 250)">
-      <rect class="ring-focus" x="-60" y="-90" width="124" height="208" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <path class="ln fl" d="M0,-78 C28,-50 28,-6 18,26 H-18 C-28,-6 -28,-50 0,-78Z"/>
-        <circle class="ln" cx="0" cy="-34" r="11"/>
-        <path class="ln fl" d="M-18,8 L-40,40 L-18,30Z"/>
-        <path class="ln fl" d="M18,8 L40,40 L18,30Z"/>
-        <path class="ln" d="M-12,30 q12,30 12,46 q0,-16 12,-46"/>
-        <g class="badge"><circle cx="40" cy="-58" r="13" fill="#2f9e44"/>
-          <path d="M33,-58 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(158 280)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="pop">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">pop.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/pop.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <text class="dlabel" y="100">POP &amp; rol</text>
     </g>
 
-    <!-- Leerdoel 1 — boombox : links midden -->
-    <g class="doodle hot" data-c="leerdoel1" role="button" tabindex="0" aria-label="Leerdoel 1, proces en bewijslast"
-       style="--c:#e4572e;--c-soft:#f7c9ba" transform="translate(158 432)">
-      <rect class="ring-focus" x="-72" y="-72" width="150" height="194" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <rect class="ln fl" x="-58" y="-6" width="116" height="74" rx="12"/>
-        <circle class="ln fl" cx="-26" cy="31" r="20"/><circle class="ln" cx="-26" cy="31" r="7"/>
-        <circle class="ln fl" cx="28"  cy="31" r="20"/><circle class="ln" cx="28"  cy="31" r="7"/>
-        <path class="ln" d="M14,-30 V-58 q0,-8 8,-9 l26,-6"/>
-        <circle class="ln fl" cx="10" cy="-28" r="7"/><circle class="ln fl" cx="44" cy="-37" r="7"/>
-        <g class="badge"><circle cx="60" cy="-22" r="13" fill="#2f9e44"/>
-          <path d="M53,-22 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="doodle hot" data-c="leerdoel1" role="button" tabindex="0" aria-label="Leerdoel 1"
+       style="--c:#e4572e;--c-soft:#f7c9ba" transform="translate(158 442)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="leerdoel1">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">leerdoel1.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/leerdoel1.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <text class="dlabel" y="100">Leerdoel 1</text>
     </g>
 
-    <!-- Reflectie — lamp : links onder -->
     <g class="doodle hot" data-c="reflectie" role="button" tabindex="0" aria-label="Reflectie"
-       style="--c:#e0a500;--c-soft:#f7e3a1" transform="translate(158 614)">
-      <rect class="ring-focus" x="-66" y="-92" width="132" height="214" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <path class="ln fl" d="M-30,18 q-26,-22 -22,-50 q4,-40 52,-40 q48,0 52,40 q4,28 -22,50 q-6,5 -6,16 h-42 q0,-11 -6,-16Z"/>
-        <path class="ln" d="M-30,42 h60 M-24,56 h48 M-18,70 q18,10 36,0"/>
-        <path class="ln" d="M0,-44 q-14,8 -12,30"/>
-        <path class="ln" d="M0,-86 V-72 M-54,-58 L-44,-50 M54,-58 L44,-50 M-64,-12 L-52,-12 M64,-12 L52,-12"/>
-        <g class="badge"><circle cx="50" cy="-58" r="13" fill="#2f9e44"/>
-          <path d="M43,-58 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+       style="--c:#e0a500;--c-soft:#f7e3a1" transform="translate(158 604)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="reflectie">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">reflectie.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/reflectie.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
-      <text class="dlabel" y="104">Reflectie</text>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <text class="dlabel" y="100">Reflectie</text>
     </g>
 
-    <!-- Leerdoel 2 — microfoon : rechts boven -->
-    <g class="doodle hot" data-c="leerdoel2" role="button" tabindex="0" aria-label="Leerdoel 2, proces en bewijslast"
-       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(842 250)">
-      <rect class="ring-focus" x="-58" y="-80" width="120" height="200" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <rect class="ln fl" x="-22" y="-66" width="44" height="64" rx="22"/>
-        <path class="ln" d="M-14,-52 h28 M-14,-40 h28 M-14,-28 h28"/>
-        <path class="ln" d="M-40,-12 q40,46 80,0"/>
-        <path class="ln" d="M0,30 V58 M-22,62 h44"/>
-        <g class="badge"><circle cx="44" cy="-58" r="13" fill="#2f9e44"/>
-          <path d="M37,-58 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="doodle hot" data-c="leerdoel2" role="button" tabindex="0" aria-label="Leerdoel 2"
+       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(842 280)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="leerdoel2">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">leerdoel2.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/leerdoel2.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <text class="dlabel" y="100">Leerdoel 2</text>
     </g>
 
-    <!-- Ethisch dilemma — weegschaal : rechts midden -->
     <g class="doodle hot" data-c="ethisch" role="button" tabindex="0" aria-label="Ethisch dilemma"
-       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(842 432)">
-      <rect class="ring-focus" x="-74" y="-72" width="158" height="196" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <path class="ln" d="M0,-50 V40 M-18,46 H18 M-42,-40 H42"/>
-        <path class="ln fl" d="M-42,-40 L-56,-6 H-28 Z"/>
-        <path class="ln fl" d="M42,-40 L56,-6 H28 Z"/>
-        <circle class="ln" cx="0" cy="-50" r="4"/>
-        <g class="badge"><circle cx="54" cy="-44" r="13" fill="#2f9e44"/>
-          <path d="M47,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(842 442)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="ethisch">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">ethisch.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/ethisch.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
       <text class="dlabel" y="100">Ethisch dilemma</text>
     </g>
 
-    <!-- Visie — hart : rechts onder -->
     <g class="doodle hot" data-c="visie" role="button" tabindex="0" aria-label="Visie als mediamaker"
-       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(842 614)">
-      <rect class="ring-focus" x="-72" y="-60" width="150" height="186" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <path class="ln fl" d="M0,64 C-66,18 -64,-44 -22,-44 C-4,-44 0,-26 0,-18 C0,-26 4,-44 22,-44 C64,-44 66,18 0,64Z"/>
-        <g class="badge"><circle cx="52" cy="-30" r="13" fill="#2f9e44"/>
-          <path d="M45,-30 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
+       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(842 604)">
+      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
+      <g class="slot" data-slot="visie">
+        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
+          <text class="ph-name" y="-4">visie.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/visie.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
-      <text class="dlabel" y="98">Visie</text>
-    </g>
-
-    <!-- Gespreksstarter — tekstballon : onder-midden -->
-    <g class="doodle hot" data-c="gesprek" role="button" tabindex="0" aria-label="Gespreksstarter"
-       style="--c:#0c8599;--c-soft:#ace3ec" transform="translate(500 742)">
-      <rect class="ring-focus" x="-70" y="-66" width="150" height="186" rx="16"/>
-      <g class="art" filter="url(#rough)">
-        <path class="ln fl" d="M-44,-34 H44 q11,0 11,11 V18 q0,11 -11,11 H4 L-12,48 L-9,29 H-44
-                 q-11,0 -11,-11 V-23 q0,-11 11,-11 Z"/>
-        <circle class="ln" cx="-16" cy="-3" r="3.6"/><circle class="ln" cx="2" cy="-3" r="3.6"/>
-        <circle class="ln" cx="20" cy="-3" r="3.6"/>
-        <g class="badge"><circle cx="48" cy="-44" r="13" fill="#2f9e44"/>
-          <path d="M41,-44 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/></g>
-      </g>
-      <text class="dlabel" y="96">Gespreksstarter</text>
+      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
+        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <text class="dlabel" y="100">Visie</text>
     </g>
 
   </svg>
@@ -332,7 +358,7 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
   <span class="name">— Max</span><img src="assets/kaires-logo.png" alt="" onerror="this.style.display='none'">
 </footer>
 
-<!-- ===================== PANEEL ===================== -->
+<!-- paneel -->
 <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="pTitle">
   <div class="card" id="card" style="--c:#e4572e">
     <button class="closeX" id="closeX" aria-label="Sluiten">×</button>
@@ -348,14 +374,34 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
   </div>
 </div>
 
+<!-- ===================== PRESENTATIEMODUS ===================== -->
+<div class="present" id="present" hidden role="dialog" aria-modal="true" aria-label="Presentatiemodus">
+  <button class="pres-exit" id="presExit" aria-label="Sluit presentatie">✕</button>
+  <div class="pres-stage">
+    <div class="pres-figure" id="presFigure"></div>
+    <div class="pres-copy">
+      <div class="pres-count" id="presCount"></div>
+      <h2 id="presTitle"></h2>
+      <p class="pres-sub" id="presSub"></p>
+      <span class="pill-lv" id="presLv" hidden></span>
+      <div class="pres-body" id="presBody"></div>
+      <div class="pres-drop" id="presDrop"></div>
+    </div>
+  </div>
+  <div class="pres-nav">
+    <button class="pres-arrow" id="presPrev" aria-label="Vorige">←</button>
+    <div class="pres-dots" id="presDots"></div>
+    <button class="pres-arrow" id="presNext" aria-label="Volgende">→</button>
+  </div>
+</div>
+
 <script>
 /* ======================================================================
-   DATA — pas hier de TEKST (body) en het BEWIJS (drop) per onderdeel aan.
-   Volgorde = volgorde van de legenda. lv = de gedragsindicator die je toont.
+   DATA — tekst (body), bewijs (drop), gedragsindicator (lv), tekening (img).
    ====================================================================== */
 const DATA = {
   about: {
-    title:"About me", sub:"Dat ben ik", color:"#e8590c", soft:"#f8cba6",
+    title:"About me", sub:"Dat ben ik", color:"#e8590c", soft:"#f8cba6", img:"assets/kind.jpg",
     body:`<p>Ik ben <b>Max Helmantel</b>, afstudeerder Smart Media Production en
           medeoprichter van <b>Kaires</b>: slimme muziekprofilering voor retail.
           Ik werk op het snijvlak van creativiteit, design en AI en vertaal nieuwe
@@ -365,7 +411,7 @@ const DATA = {
   },
   pop: {
     title:"POP-leerdoelen & beroepsrol", sub:"Waar ik naartoe werk",
-    color:"#1c7ed6", soft:"#b8dbf7", lv:"LV 1.3",
+    color:"#1c7ed6", soft:"#b8dbf7", lv:"LV 1.3", img:"assets/pop.png",
     body:`<p>Mijn <b>beroepsrol</b>: <i>creative in the loop</i>, iemand die
           creativiteit, design en techniek verbindt.</p>
           <p>Twee leerdoelen staan centraal:</p>
@@ -375,7 +421,7 @@ const DATA = {
   },
   leerdoel1: {
     title:"Leerdoel 1 — Creative in the loop", sub:"Proces & bewijslast",
-    color:"#e4572e", soft:"#f7c9ba", lv:"LV 1.3",
+    color:"#e4572e", soft:"#f7c9ba", lv:"LV 1.3", img:"assets/leerdoel1.png",
     body:`<p><b>Wat:</b> laten zien dat creativiteit relevant blijft in een tijd van AI.</p>
           <p><b>Proces:</b> met Kaires bouwde ik van concept naar werkend product en gaf
           ik trainingen over AI, design en creativiteit.</p>
@@ -389,7 +435,7 @@ const DATA = {
   },
   leerdoel2: {
     title:"Leerdoel 2 — Rust, focus & zichtbaarheid", sub:"Proces & bewijslast",
-    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3",
+    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3", img:"assets/leerdoel2.png",
     body:`<p><b>Wat:</b> energie en motivatie bepalen de kwaliteit van mijn werk, dus
           wil ik bewuster kiezen waar ik energie in steek en zichtbaarder worden.</p>
           <p><b>Proces:</b> mezelf laten zien via LinkedIn, mijn portfolio en
@@ -399,7 +445,7 @@ const DATA = {
   },
   reflectie: {
     title:"Reflectie", sub:"Wat ik over mezelf leerde",
-    color:"#e0a500", soft:"#f7e3a1", lv:"LV 1.3",
+    color:"#e0a500", soft:"#f7e3a1", lv:"LV 1.3", img:"assets/reflectie.png",
     body:`<p>Hard werken is niet hetzelfde als goed werken. Mijn beste werk ontstaat bij
           onderwerpen waar ik écht nieuwsgierig naar ben. Door steeds feedback te vragen
           en bij te sturen, kreeg ik meer inzicht in mijn eigen leerproces, en leerde ik
@@ -408,7 +454,7 @@ const DATA = {
   },
   ethisch: {
     title:"Ethisch dilemma", sub:"AI, muziek & makers",
-    color:"#7048e8", soft:"#d3c7f9", lv:"LV 4.3",
+    color:"#7048e8", soft:"#d3c7f9", lv:"LV 4.3", img:"assets/ethisch.png",
     body:`<p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept
           een vraag op: wat betekent dit voor de waarde van menselijke makers en
           muzikanten? Mag je AI-muziek inzetten zonder het te labelen?</p>
@@ -418,7 +464,7 @@ const DATA = {
   },
   visie: {
     title:"Visie als mediamaker", sub:"Creative in the loop",
-    color:"#d6336c", soft:"#f4b9d0", lv:"LV 4.3",
+    color:"#d6336c", soft:"#f4b9d0", lv:"LV 4.3", img:"assets/visie.png",
     body:`<p>Ik geloof dat AI het uitvoeren overneemt, maar dat de mens nodig blijft om te
           sturen met smaak, ethiek en betekenis. De creatief verschuift van maker naar
           <b>regisseur</b> van technologie.</p>
@@ -428,7 +474,7 @@ const DATA = {
   },
   gesprek: {
     title:"Gespreksstarter", sub:"Vraag voor het gesprek",
-    color:"#0c8599", soft:"#ace3ec",
+    color:"#0c8599", soft:"#ace3ec", img:"assets/gesprek.png",
     body:`<p style="font-size:18px"><i>"Als AI straks elke noot kan genereren, is de
           creatief dan nog <b>maker</b> of vooral <b>curator</b>, en waar ligt dan de
           waarde?"</i></p>
@@ -437,12 +483,19 @@ const DATA = {
   }
 };
 
-/* ====================== logica ====================== */
 const order = Object.keys(DATA);
 const done  = new Set();
 const svg   = document.querySelector('.scene');
 const $ = s => document.querySelector(s);
 
+/* tekening-slots: placeholder weg zodra een plaatje laadt; bij ontbreken
+   verbergen we het (gebroken) plaatje zodat alleen de placeholder blijft. */
+document.querySelectorAll('.slot .draw').forEach(img=>{
+  img.addEventListener('load', ()=> img.closest('.slot').classList.add('loaded'));
+  img.addEventListener('error', ()=>{ img.style.display='none'; });
+});
+
+/* legenda */
 const legend = $('#legend');
 order.forEach(c=>{
   const d = DATA[c];
@@ -454,26 +507,21 @@ order.forEach(c=>{
   legend.appendChild(b);
 });
 
+/* paneel */
 const overlay=$('#overlay'), card=$('#card');
 let current=null;
-
 function open(c){
   current=c; const d=DATA[c];
   card.style.setProperty('--c', d.color);
-  $('#pTitle').textContent=d.title;
-  $('#pSub').textContent=d.sub;
+  $('#pTitle').textContent=d.title; $('#pSub').textContent=d.sub;
   const lv=$('#pLv');
-  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; }
-  else lv.hidden=true;
+  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; } else lv.hidden=true;
   $('#pBody').innerHTML=d.body;
   const dropEl=$('#pDrop');
   if(d.drop && d.drop.trim()){ dropEl.innerHTML=d.drop; dropEl.style.display=''; }
   else { dropEl.innerHTML=''; dropEl.style.display='none'; }
-  const ok=$('#pOk');
-  ok.classList.toggle('is-on', done.has(c));
-  ok.setAttribute('aria-pressed', done.has(c));
-  overlay.classList.add('open');
-  $('#closeX').focus();
+  const ok=$('#pOk'); ok.classList.toggle('is-on', done.has(c)); ok.setAttribute('aria-pressed', done.has(c));
+  overlay.classList.add('open'); $('#closeX').focus();
 }
 function close(){ overlay.classList.remove('open');
   if(current){ const el=document.querySelector(`.doodle[data-c="${current}"]`); el&&el.focus(); } }
@@ -485,8 +533,10 @@ function confirm(c){
 function render(){
   order.forEach(c=>{
     const on = done.has(c);
-    document.querySelector(`.doodle[data-c="${c}"]`).classList.toggle('done', on);
-    document.querySelector(`.chip[data-c="${c}"]`).classList.toggle('done', on);
+    const el = document.querySelector(`.doodle[data-c="${c}"]`);
+    if(el) el.classList.toggle('done', on);                 // gesprek heeft geen tekening
+    const ch = document.querySelector(`.chip[data-c="${c}"]`);
+    if(ch) ch.classList.toggle('done', on);
   });
   const n=done.size, total=order.length, p=n/total;
   $('#tangle').style.opacity = 1-p;
@@ -495,7 +545,7 @@ function render(){
   const prog=$('#progress');
   if(n===0)      prog.textContent='Nog niets ingekleurd — begin bij mij of een tekening.';
   else if(n<total) prog.textContent=`${n} van de ${total} onderdelen behandeld — de lucht klaart op…`;
-  else           prog.textContent='Alle 8 onderdelen behandeld — de gedachtenwolk werd een zonnetje ☀️';
+  else           prog.textContent='Alle onderdelen behandeld — de gedachtenwolk werd een zonnetje ☀️';
 }
 
 document.querySelectorAll('.doodle.hot').forEach(el=>{
@@ -507,7 +557,52 @@ $('#pOk').addEventListener('click', ()=>confirm(current));
 $('#pClose').addEventListener('click', close);
 $('#closeX').addEventListener('click', close);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape' && overlay.classList.contains('open')) close(); });
+
+/* ===== presentatiemodus ===== */
+const present=$('#present'), presFigure=$('#presFigure');
+let pIdx=0;
+const presDots=$('#presDots');
+order.forEach((k,i)=>{ const b=document.createElement('b'); b.addEventListener('click',()=>slide(i)); presDots.appendChild(b); });
+
+function slide(i){
+  pIdx=(i+order.length)%order.length;
+  const key=order[pIdx], d=DATA[key];
+  const src=d.img||'';
+  presFigure.classList.remove('noimg');
+  presFigure.dataset.name = (src.split('/').pop()||'');
+  presFigure.innerHTML = src
+    ? `<img class="${key==='about'?'round':''}" src="${src}" alt="" onerror="var f=this.closest('.pres-figure');f.classList.add('noimg');this.remove()">`
+    : '';
+  if(!src) presFigure.classList.add('noimg');
+  $('#presCount').textContent = `${pIdx+1} / ${order.length}`;
+  const t=$('#presTitle'); t.textContent=d.title; t.style.color=d.color;
+  $('#presSub').textContent=d.sub;
+  const lv=$('#presLv');
+  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; } else lv.hidden=true;
+  $('#presBody').innerHTML=d.body;
+  const pd=$('#presDrop');
+  if(d.drop && d.drop.trim()){ pd.innerHTML=d.drop; pd.style.display=''; } else { pd.innerHTML=''; pd.style.display='none'; }
+  [...presDots.children].forEach((b,j)=>b.classList.toggle('on', j===pIdx));
+}
+function openPresent(){ present.hidden=false; slide(0);
+  try{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }catch(e){} }
+function closePresent(){ present.hidden=true;
+  try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} }
+$('#presBtn').addEventListener('click', openPresent);
+$('#presExit').addEventListener('click', closePresent);
+$('#presPrev').addEventListener('click', ()=>slide(pIdx-1));
+$('#presNext').addEventListener('click', ()=>slide(pIdx+1));
+
+document.addEventListener('keydown', e=>{
+  if(!present.hidden){
+    if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); slide(pIdx+1); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); slide(pIdx-1); }
+    else if(e.key==='Escape'){ closePresent(); }
+    return;
+  }
+  if(e.key==='Escape' && overlay.classList.contains('open')){ close(); return; }
+  if((e.key==='p'||e.key==='P') && !overlay.classList.contains('open')){ openPresent(); }
+});
 
 render();
 </script>
