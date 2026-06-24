@@ -65,7 +65,7 @@ header.top .lv{margin-top:8px}
 .lvtag{display:inline-block;font-size:12.5px;padding:2px 11px;border-radius:20px;
   border:2px solid #cdbf9e;background:rgba(255,255,255,.5);white-space:nowrap}
 
-.scene{width:100%;height:auto;display:block;margin:6px auto 0;max-width:1000px;touch-action:manipulation}
+.scene{width:100%;height:auto;aspect-ratio:1000/770;display:block;margin:6px auto 0;max-width:1000px;touch-action:manipulation}
 
 .doodle{cursor:pointer;outline:none}
 .doodle .dlabel{fill:#8a8275;font-size:20px;text-anchor:middle;
@@ -195,8 +195,8 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
   </header>
 
   <!-- ===================== DE TEKENING ===================== -->
-  <svg class="scene" viewBox="0 0 1000 730" role="group"
-       aria-label="Zelfportret met zes aanklikbare tekeningen">
+  <svg class="scene" viewBox="0 0 1000 770" width="1000" height="770" role="group"
+       aria-label="Zelfportret met vijf aanklikbare tekeningen">
     <defs>
       <filter id="rough" x="-8%" y="-8%" width="116%" height="116%">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="n"/>
@@ -254,7 +254,7 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
           <path d="M454,372 q14,-44 92,-12"/>
         </g>
       </g>
-      <image href="assets/kind.jpg" x="420" y="320" width="160" height="160"
+      <image href="assets/kind.png" x="420" y="320" width="160" height="160"
              clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"
              onerror="this.style.display='none'"/>
       <circle cx="500" cy="400" r="80" fill="none" stroke="#f59f00" stroke-width="6"
@@ -267,9 +267,9 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
       <text class="dlabel" x="500" y="536">About me</text>
     </g>
 
-    <!-- 6 tekening-slots -->
+    <!-- 5 tekening-slots (leerdoelen gebundeld) -->
     <g class="doodle hot" data-c="pop" role="button" tabindex="0" aria-label="POP-leerdoelen en beroepsrol"
-       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(158 280)">
+       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(158 290)">
       <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
       <g class="slot" data-slot="pop">
         <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
@@ -281,21 +281,21 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
       <text class="dlabel" y="100">POP &amp; rol</text>
     </g>
 
-    <g class="doodle hot" data-c="leerdoel1" role="button" tabindex="0" aria-label="Leerdoel 1"
-       style="--c:#e4572e;--c-soft:#f7c9ba" transform="translate(158 442)">
+    <g class="doodle hot" data-c="leerdoelen" role="button" tabindex="0" aria-label="Leerdoelen — proces en bewijslast"
+       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(842 290)">
       <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="leerdoel1">
+      <g class="slot" data-slot="leerdoelen">
         <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">leerdoel1.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/leerdoel1.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
+          <text class="ph-name" y="-4">leerdoelen.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
+        <image class="draw" href="assets/leerdoelen.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
       </g>
       <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
         <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Leerdoel 1</text>
+      <text class="dlabel" y="100">Leerdoelen</text>
     </g>
 
     <g class="doodle hot" data-c="reflectie" role="button" tabindex="0" aria-label="Reflectie"
-       style="--c:#e0a500;--c-soft:#f7e3a1" transform="translate(158 604)">
+       style="--c:#e0a500;--c-soft:#f7e3a1" transform="translate(158 500)">
       <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
       <g class="slot" data-slot="reflectie">
         <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
@@ -307,21 +307,8 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
       <text class="dlabel" y="100">Reflectie</text>
     </g>
 
-    <g class="doodle hot" data-c="leerdoel2" role="button" tabindex="0" aria-label="Leerdoel 2"
-       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(842 280)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="leerdoel2">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">leerdoel2.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/leerdoel2.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Leerdoel 2</text>
-    </g>
-
     <g class="doodle hot" data-c="ethisch" role="button" tabindex="0" aria-label="Ethisch dilemma"
-       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(842 442)">
+       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(842 500)">
       <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
       <g class="slot" data-slot="ethisch">
         <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
@@ -334,7 +321,7 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
     </g>
 
     <g class="doodle hot" data-c="visie" role="button" tabindex="0" aria-label="Visie als mediamaker"
-       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(842 604)">
+       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(500 648)">
       <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
       <g class="slot" data-slot="visie">
         <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
@@ -401,7 +388,7 @@ footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
    ====================================================================== */
 const DATA = {
   about: {
-    title:"About me", sub:"Dat ben ik", color:"#e8590c", soft:"#f8cba6", img:"assets/kind.jpg",
+    title:"About me", sub:"Dat ben ik", color:"#e8590c", soft:"#f8cba6", img:"assets/kind.png",
     body:`<p>Ik ben <b>Max Helmantel</b>, afstudeerder Smart Media Production en
           medeoprichter van <b>Kaires</b>: slimme muziekprofilering voor retail.
           Ik werk op het snijvlak van creativiteit, design en AI en vertaal nieuwe
@@ -419,29 +406,23 @@ const DATA = {
              2. Bewuster werken vanuit rust en focus, en zichtbaarder worden.</p>`,
     drop:`<a class="btn" href="assets/POP.pdf" target="_blank">Open mijn POP</a>`
   },
-  leerdoel1: {
-    title:"Leerdoel 1 — Creative in the loop", sub:"Proces & bewijslast",
-    color:"#e4572e", soft:"#f7c9ba", lv:"LV 1.3", img:"assets/leerdoel1.png",
-    body:`<p><b>Wat:</b> laten zien dat creativiteit relevant blijft in een tijd van AI.</p>
-          <p><b>Proces:</b> met Kaires bouwde ik van concept naar werkend product en gaf
-          ik trainingen over AI, design en creativiteit.</p>
-          <p><b>Bewijslast:</b> het Kaires-muziekproduct (hoor het hieronder), het
-          impactverslag en de pilot bij Beauty X.</p>`,
+  leerdoelen: {
+    title:"Leerdoelen", sub:"Proces & bewijslast",
+    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3", img:"assets/leerdoelen.png",
+    body:`<p><b>Leerdoel 1 — creative in the loop:</b> laten zien dat creativiteit
+          relevant blijft in een tijd van AI. Met Kaires bouwde ik van concept naar
+          werkend product (de CAS-engine) en gaf ik trainingen.</p>
+          <p><b>Leerdoel 2 — rust, focus &amp; zichtbaarheid:</b> bewuster kiezen waar ik
+          mijn energie in steek, en zichtbaarder worden via de keynote, mijn netwerk en
+          LinkedIn.</p>
+          <p><b>Bewijslast:</b> het Kaires-product (hoor het hieronder), het impactverslag,
+          het merk en de keynote/het netwerk.</p>`,
     drop:`<audio controls preload="none" src="assets/kaires-fragment.mp3" style="width:100%;margin-bottom:10px"></audio>
           <div class="btnrow">
             <a class="btn" href="assets/kaires-workflow.pdf" target="_blank">Het muziekprofilering-proces</a>
             <a class="btn ghost" href="assets/kaires-impactverslag.pdf" target="_blank">Impactverslag</a>
+            <a class="btn ghost" href="assets/kaires-brandbook.pdf" target="_blank">Merk &amp; positionering</a>
           </div>`
-  },
-  leerdoel2: {
-    title:"Leerdoel 2 — Rust, focus & zichtbaarheid", sub:"Proces & bewijslast",
-    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3", img:"assets/leerdoel2.png",
-    body:`<p><b>Wat:</b> energie en motivatie bepalen de kwaliteit van mijn werk, dus
-          wil ik bewuster kiezen waar ik energie in steek en zichtbaarder worden.</p>
-          <p><b>Proces:</b> mezelf laten zien via LinkedIn, mijn portfolio en
-          netwerkopbouw (AI Salon, hackathons, events).</p>
-          <p><b>Bewijslast:</b> mijn merk en positionering, LinkedIn en netwerk.</p>`,
-    drop:`<a class="btn" href="assets/kaires-brandbook.pdf" target="_blank">Kaires merk &amp; positionering</a>`
   },
   reflectie: {
     title:"Reflectie", sub:"Wat ik over mezelf leerde",
@@ -465,11 +446,11 @@ const DATA = {
   visie: {
     title:"Visie als mediamaker", sub:"Creative in the loop",
     color:"#d6336c", soft:"#f4b9d0", lv:"LV 4.3", img:"assets/visie.png",
-    body:`<p>Ik geloof dat AI het uitvoeren overneemt, maar dat de mens nodig blijft om te
-          sturen met smaak, ethiek en betekenis. De creatief verschuift van maker naar
-          <b>regisseur</b> van technologie.</p>
-          <p>Niet voor niets is deze presentatie zelf een kindertekening: de menselijke
-          maat in een wereld vol AI.</p>`,
+    body:`<p>Creativiteit blijft relevant in een tijd van AI. Met Kaires maak ik
+          <b>context-adaptieve, AI-gegenereerde muziek</b> en positioneer ik die niet als
+          goedkoop alternatief, maar als <b>premium</b>.</p>
+          <p>Als <i>creative in the loop</i> verbind ik creativiteit, design en techniek,
+          en wil ik Kaires als <b>thought leader</b> naar buiten brengen.</p>`,
     drop:``
   },
   gesprek: {
