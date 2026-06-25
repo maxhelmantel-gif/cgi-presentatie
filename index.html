@@ -578,67 +578,76 @@ const TICK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 
 const PDF_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
 const LINK_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`;
+const VIDEO_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`;
+const DOC_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>`;
 
 const PARTS = {
   about: {
     nr:1, c:'#e8743b', kicker:'Dat ben ik', lv:'',
     title:'About me',
-    sub:'Max Helmantel, afstudeerder Smart Media Production en medeoprichter van Kaires.',
+    sub:'Max Helmantel, afstudeerder Smart Media Production en aankomend creative in the loop.',
     body:`
-      <p>Ik ben <b>Max Helmantel</b>, medeoprichter en CEO/COO van <b>Kaires</b>:
-      slimme, context-adaptieve muziek voor retail. Ik werk op het snijvlak van
-      <b>creativiteit, design en AI</b> en vertaal nieuwe technologie snel naar een
-      werkend concept.</p>
-      <p>Deze presentatie is met opzet een kindertekening. Dit blok ben ik teruggegaan
-      naar het kleine kind in mij, juist uit kwetsbare momenten, en heb ik dat als
-      inspiratie gebruikt om verder te gaan. Mijn rode draad: groeien als
-      <i>creative in the loop</i>.</p>`,
+      <p>Ik ben <b>Max Helmantel</b>, Smart Media Professional en mediavormgever. Ik werk op het
+      snijvlak van <b>creativiteit, design en AI</b>: ik haal energie uit nieuwe ideeën en leg
+      snel verbanden tussen disciplines.</p>
+      <p>Dit afstudeerblok bereid ik me voor op het werkveld als <i>creative in the loop</i>. Om
+      me te onderscheiden werd ik <b>founder</b> en zette ik mezelf neer met founder marketing en
+      persoonlijke branding, met <b>Kaires</b> en met mijn eigen merk <b>Creative in the Loop</b>.</p>`,
     quote:`Niet de techniek maakt het verschil, maar de <b>mens</b> die haar stuurt.`,
     sketches:['kind'],
     evidence:[
-      {type:'pdf', href:'assets/POP.pdf', label:'Mijn POP', sub:'persoonlijk ontwikkelplan'}
+      {type:'pdf', href:'assets/POP.pdf', label:'Mijn POP', sub:'afstudeerblok SMP'}
     ]
   },
   pop: {
     nr:2, c:'#e3ab1f', kicker:'Waar ik heen werk', lv:'',
     title:'POP-leerdoelen & beroepsrol',
-    sub:'Mijn beroepsrol is creative in the loop. Twee leerdoelen staan centraal.',
+    sub:'Beroepsrol: creative in the loop. Twee leerdoelen om me te onderscheiden op het werkveld.',
     body:`
-      <p>Mijn <b>beroepsrol</b> is <i>creative in the loop</i>: iemand die creativiteit,
-      design en techniek met elkaar verbindt.</p>
-      <p>Twee leerdoelen staan dit blok centraal:</p>
-      <p><b>1. Creative in the loop worden</b> — laten zien dat creativiteit relevant
-      blijft in een tijd van AI.<br>
-      <b>2. Rust, focus &amp; zichtbaarheid</b> — bewuster kiezen waar ik mijn energie in
-      steek, en mezelf zichtbaar maken.</p>`,
-    quote:`Mijn kracht: snel verbanden leggen tussen disciplines en nieuwe technologie
-      vertalen naar een werkend concept.`,
+      <p>Mijn <b>beroepsrol</b> is <i>creative in the loop</i>: een mediavormgever die
+      creativiteit, design en AI verbindt en laat zien dat creativiteit relevant blijft in een
+      tijd van AI.</p>
+      <p>Om me op de arbeids- en beroepsmarkt te onderscheiden koos ik bewust voor <b>founder
+      worden</b>, met <b>founder marketing</b> en <b>persoonlijke branding</b>, niet alleen met
+      <b>Kaires</b> maar ook onder mijn eigen merk <b>Creative in the Loop</b>.</p>
+      <p>Twee leerdoelen staan centraal:</p>
+      <p><b>1. Creative in the loop</b> — creativiteit, design en AI combineren in de praktijk en
+      kennis overbrengen via trainingen.<br>
+      <b>2. Founder marketing &amp; branding</b> — mezelf zichtbaar en onderscheidend neerzetten
+      op het werkveld.</p>`,
+    quote:`Ik vind het makkelijker om werk voor anderen te maken dan mezelf zichtbaar neer te
+      zetten. Daar zet ik dit blok stappen in.`,
     sketches:['logo'],
     evidence:[
       {type:'pdf', href:'assets/POP.pdf', label:'POP', sub:'leerdoelen & beroepsrol'},
-      {type:'pdf', href:'assets/ontwikkelcanvas.pdf', label:'Ontwikkelcanvas', sub:'beginsituatie'}
+      {type:'pdf', href:'assets/kaires-marketing-founder.pdf', label:'Founder marketing', sub:'Kaires & Creative in the Loop'}
     ]
   },
   leerdoelen: {
     nr:3, c:'#3f9f54', kicker:'Proces & bewijslast', lv:'LV 1.3',
-    title:'Leerdoelen',
-    sub:'Wat ik liet zien op beide leerdoelen, met het bewijs erbij.',
+    title:'Leerdoelen & bewijslast',
+    sub:'Mijn twee leerdoelen, met het proces en bewijs per leerdoel.',
     body:`
-      <p><b>Leerdoel 1, creative in the loop.</b> Met Kaires bracht ik het
-      <b>CAS-concept</b> (Context Arousal Score) tot leven en bouwde ik van idee naar
-      werkend product. Met de <b>pilot bij Beauty X</b> werd het concreet: geen plan
-      meer, maar een eerste klant in een echte winkel.</p>
-      <p><b>Leerdoel 2, rust, focus &amp; zichtbaarheid.</b> Ik koos bewuster waar ik
-      energie in stak en trad naar buiten: een <b>keynote van 25 minuten</b> op het
-      <b>RAAIT / INretail</b>-podium, pitches en een groeiend netwerk.</p>`,
-    quote:`Onze kans zit in <b>context-adaptieve, AI-gegenereerde muziek</b>, premium
-      gepositioneerd in plaats van als goedkoop alternatief.`,
-    sketches:['desprong','beautyx'],
+      <p><b>Leerdoel 1, creative in the loop &amp; kennis overbrengen.</b> Ik bracht
+      creativiteit, design en AI samen in de praktijk en gaf onder mijn merk
+      <b>Creative in the Loop</b> trainingen in retail (<b>INretail</b>) en bij
+      <b>Mediacollege Amsterdam</b>: vier in totaal, drie voor studenten en één voor docenten. Zo
+      liet ik zien dat creativiteit relevant blijft in een tijd van AI, niet als theorie maar
+      door anderen er praktisch mee te leren werken.</p>
+      <p><b>Leerdoel 2, founder marketing &amp; persoonlijke branding.</b> Ik zette mezelf
+      bewuster zichtbaar neer: een <b>keynote</b> op het RAAIT / INretail-podium, een <b>pitch
+      bij Google Nederland</b>, inhoudelijke <b>LinkedIn-posts</b> en een groeiend netwerk,
+      founder marketing voor Kaires én voor mijn eigen merk.</p>`,
+    quote:`Mijn doel was niet zoveel mogelijk werk tonen, maar duidelijk laten zien
+      <b>waar ik voor sta</b>.`,
+    sketches:['desprong'],
     evidence:[
-      {type:'pdf', href:'assets/kaires-impactverslag.pdf', label:'Impactverslag', sub:'Beauty X-pilot'},
-      {type:'pdf', href:'assets/brandbook.pdf', label:'Kaires brandbook', sub:'merk & CAS'},
-      {type:'photo', href:'assets/keynote-foto.jpg', label:'Keynote RAAIT'},
-      {type:'pdf', href:'assets/feedback-jurgen.pdf', label:'Feedback keynote', sub:'Jurgen'}
+      {type:'pdf', href:'assets/inretail-beeldmarketing.pdf', label:'AI & beeldmarketing', sub:'training INretail'},
+      {type:'pdf', href:'assets/mediacollege-training.pdf', label:'AI-training', sub:'Mediacollege'},
+      {type:'doc', href:'assets/mediacollege-evaluatie.docx', label:'Evaluatie trainingen', sub:'Mediacollege'},
+      {type:'pdf', href:'assets/keynote-deck.pdf', label:'Keynote', sub:'RAAIT / INretail'},
+      {type:'photo', href:'assets/keynote-foto.jpg', label:'Keynote-podium'},
+      {type:'video', href:'assets/pitch-google-nederland.mp4', label:'Pitch Google Nederland', sub:'video'}
     ]
   },
   reflectie: {
@@ -646,20 +655,22 @@ const PARTS = {
     title:'Reflectie',
     sub:'Wat ik over mezelf leerde, en hoe ik daarop bijstuur.',
     body:`
-      <p>Hard werken is niet hetzelfde als goed werken. Mijn beste werk ontstaat bij
-      onderwerpen waar ik echt <b>nieuwsgierig</b> naar ben. Mijn coach zei het raak:
-      <i>mijn hoofd is mijn grootste obstakel</i>.</p>
-      <p>Mijn grootste inzicht: ik vroeg feedback vaak om me <b>gevalideerd</b> te
-      voelen, niet om te verbeteren. Dat draai ik om, ik vraag actief feedback en pas
-      het meteen toe. Met <b>Back to Being</b> ging ik terug naar het kleine kind in
-      mij en haalde ik juist uit kwetsbaarheid weer iets moois.</p>`,
-    quote:`Van feedback <b>om gevalideerd te worden</b> naar feedback <b>om te
-      verbeteren</b>. Inzicht is pas iets waard als je het inzet.`,
+      <p>Mijn grootste les: hard werken is niet hetzelfde als goed werken. Mijn beste werk
+      ontstaat bij onderwerpen waar ik echt <b>nieuwsgierig</b> naar ben en energie van krijg.
+      Daarom koos ik dit blok bewuster waar ik mijn tijd en aandacht aan besteed: ambitie én
+      <b>rust</b>.</p>
+      <p>Ik merkte ook dat ik het makkelijker vind om werk voor anderen te maken dan mezelf
+      zichtbaar neer te zetten. Met <b>Back to Being</b> ging ik terug naar het kleine kind in
+      mij: juist uit kwetsbare momenten haalde ik weer iets moois, en leerde ik mezelf laten
+      zien. Feedback uit het werkveld gebruik ik nu actief om te verbeteren.</p>`,
+    quote:`Mijn beste werk ontstaat bij onderwerpen waar ik echt <b>nieuwsgierig</b> naar ben.`,
     sketches:['backtobeing','volleybal'],
     evidence:[
       {type:'pdf', href:'assets/feedback-ron.pdf', label:'Feedback', sub:'Ron Simpson'},
+      {type:'pdf', href:'assets/feedback-jurgen.pdf', label:'Feedback', sub:'Jurgen Gravestein'},
       {type:'pdf', href:'assets/feedback-eindpresentatie.pdf', label:'Feedback', sub:'eindpresentatie'},
-      {type:'pdf', href:'assets/kernkwadranten-swot.pdf', label:'Kernkwadranten', sub:'Enneagram 4 + 8'}
+      {type:'pdf', href:'assets/back-to-being-brandguide.pdf', label:'Back to Being', sub:'brandguide'},
+      {type:'pdf', href:'assets/artikel-back-to-being.pdf', label:'Back to Being', sub:'Noordhollands Dagblad'}
     ]
   },
   ethisch: {
@@ -667,18 +678,19 @@ const PARTS = {
     title:'Ethisch dilemma',
     sub:'Wat doet AI-muziek met de waarde van de menselijke maker?',
     body:`
-      <p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept een
-      scherpe vraag op: wat betekent dit voor de <b>waarde van menselijke makers</b> en
-      muzikanten? En mag je AI-muziek inzetten zonder het te labelen?</p>
-      <p>Het concreetst werd dit bij de <b>muziekrechten</b>: kunnen we met eigen muziek
-      de afdracht aan <b>Buma/Stemra</b> vermijden? Ik baseerde dat niet op een aanname,
-      maar liet het checken bij het <b>juridisch loket</b> en een <b>advocaat</b>. Op
-      basis daarvan koos ik bewust voor transparant en eerlijk gebruik.</p>`,
-    quote:`Een <b>gecalculeerde keuze</b> in plaats van een aanname: eerst de rechten
-      checken, daarna bewust handelen.`,
+      <p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept een scherpe
+      vraag op: wat betekent dit voor de <b>waarde van menselijke makers</b> en muzikanten? En
+      mag je AI-muziek inzetten zonder het te labelen?</p>
+      <p>Het concreetst werd dit bij de <b>muziekrechten</b>: kunnen we met eigen muziek de
+      afdracht aan <b>Buma/Stemra</b> vermijden? Ik baseerde dat niet op een aanname, maar liet
+      het checken bij het <b>juridisch loket</b> en een <b>advocaat</b>. Op basis daarvan koos ik
+      bewust voor transparant en eerlijk gebruik.</p>`,
+    quote:`Een <b>gecalculeerde keuze</b> in plaats van een aanname: eerst de rechten checken,
+      daarna bewust handelen.`,
     sketches:['platenhoes'],
     evidence:[
       {type:'pdf', href:'assets/muziekrechten-loket.pdf', label:'Onderzoek muziekrechten', sub:'juridisch loket'},
+      {type:'doc', href:'assets/adviesbrief-advocaat.docx', label:'Adviesbrief advocaat', sub:'mr. Smit'},
       {type:'photo', href:'assets/rechtenfaculteit.jpg', label:'Rechtenfaculteit', sub:'testsessie'}
     ]
   },
@@ -688,16 +700,16 @@ const PARTS = {
     sub:'De mens stuurt, de technologie speelt.',
     body:`
       <p>Creativiteit blijft relevant in een tijd van AI. Ik geloof in de
-      <i>creative in the loop</i>: de mens die met smaak, ethiek en betekenis de
-      technologie aanstuurt, zoals een dirigent een orkest.</p>
-      <p>Met Kaires maak ik <b>context-adaptieve AI-muziek</b> en positioneer ik die als
-      <b>premium</b>, niet als goedkoop alternatief. Ik wil Kaires als
-      <b>thought leader</b> naar buiten brengen, niet als product-pitch.</p>`,
-    quote:`De mens als <b>dirigent</b> van de technologie. Daar ligt de waarde van de
-      creatief, ook in een tijd van AI.`,
+      <i>creative in the loop</i>: de mens die met smaak, ethiek en betekenis de technologie
+      aanstuurt, zoals een dirigent een orkest.</p>
+      <p>Mijn rol zie ik tweeledig: zelf creatief werk maken met AI, én anderen meenemen zodat
+      makers in de loop blijven. Daarom geef ik trainingen. Met Kaires positioneer ik AI-muziek
+      als <b>premium</b> in plaats van als goedkoop alternatief.</p>`,
+    quote:`De mens als <b>dirigent</b> van de technologie. Daar ligt de waarde van de creatief,
+      ook in een tijd van AI.`,
     sketches:['dirigent'],
     evidence:[
-      {type:'pdf', href:'assets/artikel-back-to-being.pdf', label:'Back to Being', sub:'Noordhollands Dagblad'},
+      {type:'pdf', href:'assets/nano-banana.pdf', label:'AI in de praktijk', sub:'Nano Banana'},
       {type:'link', href:'https://kaires.nl', label:'kaires.nl', sub:'de onderneming'}
     ]
   },
@@ -706,13 +718,15 @@ const PARTS = {
     title:'Gespreksstarter',
     sub:'Waar ik graag met jullie over doorpraat.',
     body:`
-      <p style="font-size:17px"><i>"Als AI straks elke noot kan genereren, is de creatief
-      dan nog <b>maker</b> of vooral <b>curator</b>, en waar ligt dan de waarde?"</i></p>
+      <p style="font-size:17px"><i>"Als AI straks elk beeld en elke noot kan genereren, is de
+      creatief dan nog <b>maker</b> of vooral <b>curator</b>, en waar ligt dan de waarde?"</i></p>
       <p>Ik ben benieuwd hoe jullie de rol van de creatief over vijf jaar zien.</p>`,
     quote:``,
     sketches:['netwerken'],
     evidence:[
-      {type:'pdf', href:'assets/netwerkverslag.pdf', label:'Netwerkverslag', sub:'netwerk & partnerships'}
+      {type:'pdf', href:'assets/netwerkverslag.pdf', label:'Netwerkverslag', sub:'netwerk & partnerships'},
+      {type:'photo', href:'assets/hva-linkedin.png', label:'HvA LinkedIn-post', sub:'zichtbaarheid'},
+      {type:'pdf', href:'assets/linkedin-berkley.pdf', label:'Kaires × Berkley', sub:'LinkedIn'}
     ]
   }
 };
@@ -720,14 +734,13 @@ const PARTS = {
 /* schetsen: positie op de stage (left/top in %, breedte in cqw, rotatie) */
 const SKETCHES = {
   kind:        {part:'about',      isCenter:true},
-  dirigent:    {part:'visie',      img:'assets/dirigent.png',     cap:'de dirigent',      l:66, t:47, w:12, r:3 },
-  platenhoes:  {part:'ethisch',    img:'assets/platenhoes.png',   cap:'platenhoes',       l:5,  t:7,  w:14, r:-3},
-  volleybal:   {part:'reflectie',  img:'assets/volleybal.png',    cap:'volleybal met pa', l:26, t:11, w:12, r:-5},
-  logo:        {part:'pop',        img:'assets/logo-schets.png',  cap:'merk & CAS',       l:7,  t:46, w:13, r:-4},
-  desprong:    {part:'leerdoelen', img:'assets/de-sprong.png',    cap:'de sprong',        l:82, t:44, w:13, r:3 },
-  backtobeing: {part:'reflectie',  img:'assets/back-to-being.png',cap:'back to being',    l:4,  t:71, w:17, r:4 },
-  beautyx:     {part:'leerdoelen', img:'assets/beautyx.png',      cap:'pilot Beauty X',   l:29, t:80, w:15, r:-3},
-  netwerken:   {part:'gesprek',    img:'assets/netwerken.png',    cap:'netwerk',          l:75, t:72, w:14, r:-6}
+  platenhoes:  {part:'ethisch',    img:'assets/platenhoes.png',   cap:'platenhoes',       l:5,  t:9,  w:14, r:-3},
+  volleybal:   {part:'reflectie',  img:'assets/volleybal.png',    cap:'volleybal met pa', l:25, t:11, w:12, r:-5},
+  logo:        {part:'pop',        img:'assets/logo-schets.png',  cap:'mijn merk',        l:6,  t:41, w:13, r:-4},
+  backtobeing: {part:'reflectie',  img:'assets/back-to-being.png',cap:'back to being',    l:5,  t:71, w:16, r:4 },
+  desprong:    {part:'leerdoelen', img:'assets/de-sprong.png',    cap:'de sprong',        l:80, t:44, w:13, r:3 },
+  dirigent:    {part:'visie',      img:'assets/dirigent.png',     cap:'de dirigent',      l:82, t:64, w:12, r:3 },
+  netwerken:   {part:'gesprek',    img:'assets/netwerken.png',    cap:'netwerk',          l:70, t:84, w:14, r:-6}
 };
 
 /* decoratieve krabbel-achtergrond voor de modal-kop (per kleur) */
@@ -791,14 +804,13 @@ const sketchEl = id => (id==='kind') ? $('#kind') : stage.querySelector(`.sketch
 
 /* posities: aparte verdeling voor mobiel (staand) zodat niets de titel/figuur overlapt */
 const MOBILE_POS = {
-  dirigent:   {l:60, t:6,  w:33, r:4 },
-  platenhoes: {l:5,  t:8,  w:28, r:-3},
-  volleybal:  {l:67, t:34, w:24, r:-5},
-  logo:       {l:5,  t:35, w:25, r:-4},
-  desprong:   {l:64, t:58, w:29, r:3 },
-  backtobeing:{l:2,  t:58, w:33, r:4 },
-  beautyx:    {l:6,  t:82, w:31, r:-3},
-  netwerken:  {l:62, t:84, w:29, r:-6}
+  platenhoes: {l:5,  t:7,  w:28, r:-3},
+  volleybal:  {l:64, t:8,  w:26, r:-5},
+  logo:       {l:6,  t:34, w:26, r:-4},
+  desprong:   {l:62, t:34, w:29, r:3 },
+  backtobeing:{l:4,  t:60, w:33, r:4 },
+  dirigent:   {l:60, t:60, w:30, r:3 },
+  netwerken:  {l:32, t:85, w:30, r:-6}
 };
 function isMobile(){ return matchMedia('(max-width:760px)').matches; }
 function applyLayout(){
@@ -882,7 +894,7 @@ function eviHTML(e){
     return `<a class="evi photo" href="${e.href}" target="_blank" rel="noopener" aria-label="${e.label}">
       <img src="${e.href}" alt="${e.label}"></a>`;
   }
-  const ic = e.type==='link'?LINK_IC:PDF_IC;
+  const ic = e.type==='link'?LINK_IC : e.type==='video'?VIDEO_IC : e.type==='doc'?DOC_IC : PDF_IC;
   return `<a class="evi" href="${e.href}" target="_blank" rel="noopener">
     <span class="ic">${ic}</span>
     <span><b>${e.label}</b>${e.sub?`<small>${e.sub}</small>`:''}</span></a>`;
