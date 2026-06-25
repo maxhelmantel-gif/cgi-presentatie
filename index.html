@@ -2,590 +2,1121 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mijn CGI · Smart Media Production — Max Helmantel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mijn CGI · Max Helmantel · Smart Media Production</title>
+<meta name="description" content="De CGI-presentatie van Max Helmantel voor Smart Media Production, als interactieve kindertekening.">
 
 <!--
-  CGI-PRESENTATIE als kindertekening — Smart Media Production (blok 8).
-  Zelfstandig: geen build, geen dependencies, geen localStorage.
-
-  >> JOUW EIGEN TEKENINGEN <<
-  Elke tekening is een AFBEELDING. Leg je handgetekende plaatjes in assets/ met
-  exact deze namen (zie ook BENODIGDE_TEKENINGEN.md):
-     assets/pop.png         POP-leerdoelen & beroepsrol
-     assets/leerdoel1.png   Leerdoel 1
-     assets/leerdoel2.png   Leerdoel 2
-     assets/reflectie.png   Reflectie
-     assets/ethisch.png     Ethisch dilemma
-     assets/visie.png       Visie
-     assets/gesprek.png     (optioneel) Gespreksstarter
-     assets/kind.jpg        About me (foto of tekening van jezelf)
-  Vierkant, transparante of witte achtergrond, ~600x600 px of groter.
-  Zolang een plaatje ontbreekt, zie je een nette "plak hier"-placeholder.
-
-  PRESENTATIEMODUS: knop rechtsboven (of toets P). Pijltjes ← → / spatie,
-  Esc om te sluiten. Loopt door alle 8 onderdelen heen.
+  ╔═══════════════════════════════════════════════════════════════════════╗
+  ║  MIJN ONTWIKKELING — interactieve eindreflectie als kindertekening     ║
+  ║  Max Helmantel · Minor Ondernemerschap · juni 2026                      ║
+  ║                                                                         ║
+  ║  Zelfstandige pagina. Eén bestand + map assets/. Geen build.            ║
+  ║  Lokaal testen:  python3 -m http.server 8000  ->  localhost:8000        ║
+  ║                                                                         ║
+  ║  CONCEPT                                                                 ║
+  ║  De normale staat is canvas: beige papier, alles in potloodgrijs.       ║
+  ║  Klik een schets aan en hij kleurt in. Dat is de kleur die ik zelf zie. ║
+  ║  Hoe meer ik inkleur, hoe meer mijn wereld in kleur verschijnt en hoe   ║
+  ║  verder ik loskom van de beperkingen die ik mezelf als volwassene       ║
+  ║  oplegde. Rechtsboven vink je per onderdeel de beoordeling af.          ║
+  ╚═══════════════════════════════════════════════════════════════════════╝
 -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --paper:#fbf7ec; --ink:#4a4540; --pencil:#bdb6a8; --pencil-soft:#efe9db;
-  --shadow:0 10px 30px rgba(80,60,30,.16);
+  --paper:#f3ead8;
+  --paper-2:#efe3cd;
+  --ink:#3a342c;
+  --ink-soft:#6f665a;
+  --pencil:#b3a994;
+  --pencil-line:#a99e87;
+  --line:#d9ccb2;
+  --tape:rgba(226,210,170,.55);
+
+  /* onderdeel-kleuren */
+  --c-prof:#e8743b;
+  --c-inzicht:#e3ab1f;
+  --c-bijdrage:#d6457e;
+  --c-buiten:#3f9f54;
+  --c-risico:#2f86c9;
+
+  --shadow:0 18px 40px -18px rgba(70,52,25,.45);
+  --shadow-sm:0 8px 18px -10px rgba(70,52,25,.5);
+
+  /* glassmorphism */
+  --glass-blur:blur(15px) saturate(1.5);
+  --glass-edge:1px solid rgba(255,255,255,.55);
+  --glass-sheen:inset 0 1px 0 rgba(255,255,255,.65);
 }
+
 *{box-sizing:border-box}
-html,body{margin:0}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 body{
-  font-family:'Chalkboard SE','Comic Sans MS','Comic Neue','Patrick Hand',
-              'Bradley Hand','Segoe Print',cursive,system-ui,sans-serif;
-  color:var(--ink); background:var(--paper);
-  background-image:
-    radial-gradient(rgba(150,130,90,.05) 1px, transparent 1.4px),
-    radial-gradient(rgba(150,130,90,.04) 1px, transparent 1.4px);
-  background-size:7px 7px, 11px 11px; background-position:0 0, 3px 4px;
-  line-height:1.45; -webkit-text-size-adjust:100%;
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  overflow-x:hidden;
+  min-height:100svh;
 }
-.wrap{max-width:1040px;margin:0 auto;padding:18px 18px 56px}
 
-/* presentatie-knop */
-.topbar{display:flex;justify-content:flex-end;margin-bottom:-6px}
-.present-btn{font:inherit;font-size:15px;cursor:pointer;color:#fff;background:#3b6e2f;
-  border:none;border-radius:24px;padding:8px 18px;box-shadow:0 4px 0 rgba(0,0,0,.15);
-  transition:transform .12s}
-.present-btn:hover{transform:translateY(-1px)}
-.present-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.15)}
+/* ───────────────────────── achtergrond / canvas ───────────────────────── */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden}
+.bg-paper{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #f7efdf 0%, var(--paper) 46%, var(--paper-2) 100%);
+}
+/* fijne papierkorrel via SVG-ruis */
+.bg-grain{
+  position:absolute;inset:-20px;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/></svg>");
+}
+/* lichte vouw/vignet zodat het naar papier voelt */
+.bg-vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(130% 120% at 50% 38%, transparent 58%, rgba(98,74,38,.10) 100%);
+}
+/* de kleurenwereld die verschijnt naarmate je inkleurt */
+.bg-color{
+  position:absolute;inset:0;opacity:0;
+  background-image:var(--bg-img);
+  background-size:cover;background-position:center;
+  transition:opacity 1.1s cubic-bezier(.4,.1,.2,1);
+  will-change:opacity;
+}
+.bg-color::after{ /* houd tekst leesbaar als de kleur opkomt */
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(120% 100% at 50% 42%, rgba(247,240,224,.62) 0%, rgba(247,240,224,.30) 45%, rgba(247,240,224,.05) 100%);
+}
 
-header.top{text-align:center;margin:0 0 2px}
-header.top h1{font-size:clamp(28px,5.6vw,50px);margin:0;letter-spacing:.5px;
-  color:#3b3631;transform:rotate(-1.2deg);text-shadow:1px 2px 0 rgba(0,0,0,.05)}
-header.top .sub{font-size:clamp(14px,2.3vw,18px);opacity:.8;margin:3px 0 0}
-header.top .hint{display:inline-block;margin-top:9px;font-size:14.5px;opacity:.9;
-  padding:5px 14px;border:2px dashed #d8cdb3;border-radius:20px;
-  transform:rotate(.5deg);background:rgba(255,255,255,.4)}
-header.top .lv{margin-top:8px}
-.lvtag{display:inline-block;font-size:12.5px;padding:2px 11px;border-radius:20px;
-  border:2px solid #cdbf9e;background:rgba(255,255,255,.5);white-space:nowrap}
+/* ───────────────────────── topbalk ───────────────────────── */
+.topbar{
+  position:relative;z-index:6;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  gap:14px;padding:18px clamp(16px,3.5vw,40px) 0;
+}
+.brand{display:flex;align-items:center;gap:10px;justify-self:start}
+.brand img{height:26px;width:auto;display:block}
+.brand .who{font-size:13px;line-height:1.2;color:var(--ink-soft)}
+.brand .who b{display:block;color:var(--ink);font-size:14px;font-weight:600}
 
-.scene{width:100%;height:auto;aspect-ratio:1000/770;display:block;margin:6px auto 0;max-width:1000px;touch-action:manipulation}
+.about-btn{
+  font-family:'Caveat',cursive;font-size:20px;color:var(--ink);
+  background:rgba(255,255,255,.3);
+  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:var(--glass-edge);
+  border-radius:30px;padding:5px 18px 7px;cursor:pointer;
+  box-shadow:0 8px 20px -10px rgba(70,52,25,.5), var(--glass-sheen);
+  transition:transform .15s, background .2s;
+  white-space:nowrap;
+}
+.about-btn:hover{transform:translateY(-2px) rotate(-1deg);background:rgba(255,255,255,.52)}
+.about-btn:focus-visible{outline:3px solid var(--c-inzicht);outline-offset:2px}
 
-.doodle{cursor:pointer;outline:none}
-.doodle .dlabel{fill:#8a8275;font-size:20px;text-anchor:middle;
-  transition:fill .4s ease;pointer-events:none}
-.doodle.done .dlabel{fill:var(--c)}
-.doodle .badge{opacity:0;transform-box:fill-box;transform-origin:center;
-  transform:scale(.4);transition:opacity .35s ease, transform .35s ease}
-.doodle.done .badge{opacity:1;transform:scale(1)}
+/* ───────────────────────── stage ───────────────────────── */
+.stage-wrap{
+  position:relative;z-index:2;
+  width:100%;display:flex;justify-content:center;
+  padding:6px clamp(8px,2vw,24px) 30px;
+}
+.stage{
+  position:relative;
+  width:min(96vw,1180px);
+  aspect-ratio:118 / 88;
+  container-type:inline-size;
+}
 
-/* afbeelding-slot voor jouw tekening */
-.slot{transform-box:fill-box;transform-origin:center;transition:transform .25s ease}
-.slot .draw{filter:grayscale(.85);opacity:.5;transition:filter .5s ease,opacity .5s ease}
-.doodle.done .slot .draw{filter:none;opacity:1}
-.slot .ph{transition:opacity .3s ease}
-.slot.loaded .ph{opacity:0;pointer-events:none}
-.ph rect{fill:rgba(255,255,255,.45);stroke:var(--c,#cdbf9e);stroke-width:2.5;stroke-dasharray:6 7}
-.ph-name{fill:#8a8275;font-size:15px;text-anchor:middle;font-family:ui-monospace,Menlo,monospace}
-.ph-hint{fill:#aaa092;font-size:13px;text-anchor:middle}
-@media (hover:hover){.doodle:hover .slot{transform:translateY(-4px) rotate(-1deg) scale(1.04)}}
-.doodle:focus-visible .slot{transform:translateY(-4px) scale(1.05)}
-.doodle:focus-visible .ring-focus{opacity:1}
-.ring-focus{opacity:0;fill:#fff;fill-opacity:0;stroke:#1c7ed6;stroke-width:3;
-  stroke-dasharray:5 6;transition:opacity .2s;pointer-events:all;cursor:pointer}
-#facePlaceholder .ln{stroke:#cbbfa6}
+/* titel (eigen handschrift) */
+.titel{
+  position:absolute;left:50%;top:1%;
+  width:46cqw;margin-left:-23cqw;
+  z-index:4;pointer-events:none;
+  filter:drop-shadow(0 10px 16px rgba(70,52,25,.18));
+}
+.titel img{width:100%;height:auto;display:block}
+.titel-txt{font-family:'Caveat',cursive;font-weight:700;font-size:10cqw;line-height:.82;color:var(--ink);text-align:center;letter-spacing:.5px;transform:rotate(-1.5deg)}
 
-#tangle{transition:opacity .8s ease}
-#calm{opacity:0;transition:opacity .8s ease}
-.scene.bright #sunrays{animation:spin 26s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#sunrays{transform-box:fill-box;transform-origin:center}
+/* centrale figuur */
+.kind{
+  position:absolute;left:50%;top:37%;
+  width:27cqw;margin-left:-13.5cqw;
+  z-index:3;
+  filter:grayscale(1) contrast(.98);
+  transition:filter .9s ease;
+}
+.kind.done{filter:grayscale(0) contrast(1.02) saturate(1.06)}
+.kind img{width:100%;height:auto;display:block;
+  filter:drop-shadow(0 14px 20px rgba(70,52,25,.28))}
+.kind .ring{
+  position:absolute;inset:-5% -6% -7% -6%;border-radius:50%;
+  border:2px dashed var(--pencil);opacity:.0;pointer-events:none;
+  transition:opacity .4s, border-color .5s;
+}
+.kind .name-tag{
+  position:absolute;left:50%;bottom:-7%;transform:translateX(-50%) rotate(-2deg);
+  font-family:'Caveat',cursive;font-size:5.2cqw;line-height:1;color:var(--ink);
+  background:rgba(255,255,255,.42);
+  -webkit-backdrop-filter:blur(9px) saturate(1.4);backdrop-filter:blur(9px) saturate(1.4);
+  border:var(--glass-edge);border-radius:10px;
+  padding:2px 13px 4px;white-space:nowrap;box-shadow:var(--shadow-sm), var(--glass-sheen);
+  opacity:0;
+}
 
-.legend{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:18px auto 0;max-width:900px}
-.chip{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font:inherit;font-size:15px;
-  color:var(--ink);background:rgba(255,255,255,.65);border:2.5px solid var(--pencil);
-  border-radius:30px;padding:6px 14px 7px;transition:border-color .35s,background .35s,transform .15s}
-.chip:hover{transform:translateY(-2px) rotate(-.5deg)}
-.chip:focus-visible{outline:3px dashed #1c7ed6;outline-offset:2px}
-.chip .dot{width:13px;height:13px;border-radius:50%;background:transparent;
-  border:2.5px solid var(--pencil);transition:background .35s,border-color .35s;flex:none}
-.chip.done{border-color:var(--c);background:var(--c-soft)}
-.chip.done .dot{background:var(--c);border-color:var(--c)}
+/* algemene schets */
+.sketch{
+  position:absolute;z-index:3;cursor:pointer;
+  border:none;background:none;padding:0;margin:0;
+  filter:grayscale(1) contrast(.96) brightness(1.02);
+  transition:filter .6s ease, transform .35s cubic-bezier(.34,1.4,.5,1);
+  -webkit-tap-highlight-color:transparent;
+  transform-origin:center;
+}
+.sketch img{width:100%;height:auto;display:block;pointer-events:none;
+  filter:drop-shadow(0 10px 14px rgba(70,52,25,.22))}
+.sketch .cap{
+  position:absolute;left:50%;bottom:-15%;transform:translateX(-50%) rotate(-1.5deg);
+  font-family:'Caveat',cursive;font-size:3cqw;line-height:1;
+  color:var(--ink-soft);white-space:nowrap;pointer-events:none;
+  opacity:.0;transition:opacity .3s, color .5s;
+}
+@media (hover:hover){
+  .sketch:hover{filter:grayscale(.35) contrast(1) brightness(1.02);transform:translateY(-6px) rotate(-1deg) scale(1.045)}
+  .sketch:hover .cap{opacity:1}
+}
+.sketch:focus-visible{outline:3px dashed currentColor;outline-offset:5px;border-radius:10px;filter:grayscale(.3)}
+.sketch.done{filter:grayscale(0) contrast(1.02) saturate(1.06)}
+.sketch.done .cap{opacity:1;color:var(--c)}
+.sketch .pin{
+  position:absolute;top:-6%;left:50%;width:18%;transform:translateX(-50%);
+  opacity:0;transition:opacity .3s}
+.sketch.done .pin{opacity:1}
 
-.progress{text-align:center;margin:14px 0 0;font-size:16px;min-height:22px;opacity:.9}
+/* check-stip op een ingekleurde schets */
+.sketch .tick{
+  position:absolute;top:-6%;right:-6%;width:22%;aspect-ratio:1;
+  border-radius:50%;background:var(--c);color:#fff;
+  display:grid;place-items:center;box-shadow:var(--shadow-sm);
+  transform:scale(0);transition:transform .35s cubic-bezier(.34,1.6,.5,1);
+}
+.sketch.done .tick{transform:scale(1)}
+.sketch .tick svg{width:54%;height:54%}
 
-/* paneel (klik op tekening) */
-.overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(60,45,25,.42);
-  padding:18px;z-index:50;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+/* ───────────────────────── voortgangspaneel ───────────────────────── */
+.panel{
+  position:fixed;top:16px;right:16px;z-index:20;width:min(86vw,272px);
+  background:rgba(255,252,245,.62);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  border:var(--glass-edge);border-radius:18px;
+  box-shadow:var(--shadow), var(--glass-sheen);overflow:hidden;
+}
+.panel h2{
+  margin:0;padding:13px 16px 9px;
+  font-family:'Caveat',cursive;font-weight:700;font-size:23px;line-height:1;
+  display:flex;align-items:center;gap:9px;
+}
+.panel h2 .mini{font-family:'Inter';font-size:11px;font-weight:600;color:var(--ink-soft);
+  letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.panel .meter{height:7px;background:#ece0c6;margin:0 16px;border-radius:6px;overflow:hidden}
+.panel .meter i{display:block;height:100%;width:0;border-radius:6px;
+  background:linear-gradient(90deg,var(--c-prof),var(--c-inzicht),var(--c-bijdrage),var(--c-buiten),var(--c-risico));
+  transition:width .6s cubic-bezier(.4,.1,.2,1)}
+.panel ul{list-style:none;margin:9px 0 6px;padding:6px 8px 8px}
+.panel li{margin:1px 0}
+.panel li button{
+  width:100%;display:flex;align-items:center;gap:10px;text-align:left;
+  background:none;border:none;cursor:pointer;border-radius:10px;
+  padding:7px 8px;font:inherit;color:var(--ink);transition:background .15s;
+}
+.panel li button:hover{background:rgba(0,0,0,.04)}
+.panel li button:focus-visible{outline:2px solid var(--c);outline-offset:1px}
+.panel .box{
+  flex:none;width:21px;height:21px;border-radius:7px;
+  border:2.5px solid var(--c,#cbb);background:#fff;
+  display:grid;place-items:center;color:#fff;transition:background .3s, border-color .3s;
+  position:relative;
+}
+.panel .box svg{width:14px;height:14px;opacity:0;transform:scale(.4);transition:opacity .3s, transform .35s cubic-bezier(.34,1.6,.5,1)}
+.panel li.done .box{background:var(--c)}
+.panel li.done .box svg{opacity:1;transform:scale(1)}
+.panel .lbl{flex:1;font-size:13.5px;line-height:1.25;font-weight:500}
+.panel .lbl small{display:block;color:var(--ink-soft);font-size:11px;font-weight:500}
+.panel li.done .lbl{color:var(--ink)}
+.panel .frac{font-size:11px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.panel .done-all{
+  margin:2px 10px 12px;padding:9px 12px;border-radius:11px;text-align:center;
+  background:linear-gradient(100deg,#fff3da,#ffe9d6);border:1.5px dashed var(--c-prof);
+  font-family:'Caveat',cursive;font-size:18px;line-height:1.15;color:#9a5a2a;
+  display:none;
+}
+.panel.complete .done-all{display:block;animation:pop .5s both}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+
+.panel-toggle{
+  display:none;position:fixed;top:16px;right:16px;z-index:21;
+  width:54px;height:54px;border-radius:16px;border:var(--glass-edge);
+  background:rgba(255,252,245,.55);
+  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  box-shadow:0 10px 24px -10px rgba(70,52,25,.55), var(--glass-sheen);cursor:pointer;
+  align-items:center;justify-content:center;font-family:'Caveat';font-size:13px;color:var(--ink)}
+.panel-toggle b{font-size:16px}
+
+/* ───────────────────────── hint ───────────────────────── */
+.hint{
+  position:relative;z-index:3;text-align:center;margin:-6px auto 0;
+  font-family:'Caveat',cursive;font-size:clamp(19px,2.5vw,25px);color:var(--ink-soft);
+}
+.hint .key{color:var(--c-prof)}
+
+/* intro: verberg de losse elementen alleen zolang 'pending' actief is.
+   De eindstaat is altijd zichtbaar (CSS), nooit afhankelijk van JS/GSAP. */
+body.pending .brand,
+body.pending .titel,
+body.pending .kind,
+body.pending .panel,
+body.pending .panel-toggle,
+body.pending .hint,
+body.pending .sketch{opacity:0}
+
+/* ───────────────────────── overlay / pop-up ───────────────────────── */
+.overlay{
+  position:fixed;inset:0;z-index:40;display:none;place-items:center;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));
+  background:rgba(54,40,20,.4);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+}
 .overlay.open{display:grid}
-.card{width:min(540px,100%);max-height:88vh;overflow:auto;background:#fffdf6;border-radius:18px;
-  box-shadow:var(--shadow);border:3px solid var(--c,#e4c98b);padding:22px 22px 20px;
-  position:relative;transform:rotate(-.5deg)}
-.card h2{margin:.1em 0 .05em;font-size:25px;color:var(--c,#3b3631)}
-.card .sub2{margin:0 0 6px;font-size:15.5px;opacity:.7}
-.pill-lv{display:inline-block;font-size:12.5px;color:#3b6e2f;background:#e6f3df;
-  border:2px solid #bfe0b0;border-radius:20px;padding:2px 10px;margin:2px 0 12px}
-.pill-lv[hidden]{display:none}
-.body{font-size:16.5px;color:#48433d}
-.body p{margin:.4em 0 .8em}
-.drop{margin:14px 0 4px}
-.btnrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-.btn,a.btn{display:inline-block;font:inherit;font-size:15px;cursor:pointer;background:var(--c,#e4572e);
-  color:#fff;text-decoration:none;border:none;border-radius:24px;padding:9px 18px;
-  box-shadow:0 4px 0 rgba(0,0,0,.12);transition:transform .12s,box-shadow .12s}
-.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
-.btn.ghost{background:transparent;color:#6f675c;box-shadow:none;border:2.5px solid #d9cfb6}
-.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;
-  padding-top:14px;border-top:2px dashed #e9e0c9}
-.btn.ok.is-on{background:#2f9e44}.btn.ok.is-on::after{content:'  ✓'}
-.closeX{position:absolute;top:10px;right:12px;border:none;background:none;font:inherit;
-  font-size:26px;line-height:1;cursor:pointer;color:#b1a892;padding:4px 8px;border-radius:50%}
-.closeX:hover{color:#6f675c;background:rgba(0,0,0,.05)}
-
-footer.sign{text-align:right;margin:30px 4px 0;opacity:.85}
-footer.sign .name{font-size:23px;transform:rotate(-3deg);display:inline-block}
-footer.sign img{height:26px;vertical-align:middle;margin-left:8px;opacity:.9}
-
-/* ===== PRESENTATIEMODUS ===== */
-.present{position:fixed;inset:0;z-index:90;background:var(--paper);
-  background-image:radial-gradient(rgba(150,130,90,.05) 1px,transparent 1.4px);
-  background-size:8px 8px;display:flex;flex-direction:column}
-.present[hidden]{display:none}
-.pres-exit{position:absolute;top:14px;right:18px;z-index:2;border:none;background:rgba(255,255,255,.6);
-  font:inherit;font-size:24px;line-height:1;cursor:pointer;color:#6f675c;padding:6px 12px;border-radius:50%}
-.pres-stage{flex:1;display:flex;gap:36px;align-items:center;justify-content:center;
-  padding:46px 40px 10px;max-width:1120px;margin:0 auto;width:100%}
-.pres-figure{flex:0 0 42%;display:flex;align-items:center;justify-content:center;min-height:30vh}
-.pres-figure img{max-width:100%;max-height:48vh;border-radius:14px}
-.pres-figure img.round{border-radius:50%;border:6px solid #f59f00;width:min(40vh,320px);height:min(40vh,320px);object-fit:cover}
-.pres-figure.noimg{flex-direction:column;color:#b6ab97}
-.pres-figure.noimg::before{content:'✎';font-size:96px;opacity:.5}
-.pres-figure.noimg::after{content:attr(data-name);font-family:ui-monospace,Menlo,monospace;font-size:15px;margin-top:6px}
-.pres-copy{flex:1;max-width:560px}
-.pres-count{font-size:14px;opacity:.55;letter-spacing:.5px}
-.pres-copy h2{font-size:clamp(26px,4vw,38px);margin:.1em 0 .1em;color:#3b3631}
-.pres-sub{font-size:18px;opacity:.7;margin:0 0 10px}
-.pres-body{font-size:clamp(17px,2.1vw,20px);color:#46413b}
-.pres-body p{margin:.4em 0 .7em}
-.pres-drop{margin-top:14px}
-.pres-nav{display:flex;gap:20px;align-items:center;justify-content:center;padding:10px 0 24px}
-.pres-arrow{font:inherit;font-size:22px;cursor:pointer;width:54px;height:54px;border-radius:50%;
-  border:2.5px solid #d3c9b2;background:#fff;color:#5a5247;box-shadow:0 4px 0 rgba(0,0,0,.08);transition:transform .12s}
-.pres-arrow:hover{transform:translateY(-1px)}.pres-arrow:active{transform:translateY(2px);box-shadow:none}
-.pres-dots{display:flex;gap:9px;align-items:center}
-.pres-dots b{width:11px;height:11px;border-radius:50%;background:#d8cdb3;cursor:pointer;transition:background .2s,transform .2s}
-.pres-dots b.on{background:#3b6e2f;transform:scale(1.25)}
-
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
-@media (max-width:760px){
-  .pres-stage{flex-direction:column;gap:14px;padding:54px 20px 8px}
-  .pres-figure{flex:none;min-height:0}.pres-figure img{max-height:30vh}
-  .pres-figure img.round{width:34vh;height:34vh}
+.modal{
+  position:relative;width:min(680px,100%);max-height:90svh;overflow:auto;
+  background:rgba(255,253,247,.82);
+  -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);
+  border-radius:22px;box-shadow:0 30px 70px -20px rgba(50,34,10,.6), var(--glass-sheen);
+  border:var(--glass-edge);
+  /* kleurplaat-rand: zachte lijntekening-iconen langs de bovenrand */
 }
-@media (max-width:560px){.card{transform:none}header.top h1{transform:rotate(-.6deg)}}
-@media print{.overlay,.present{display:none!important}body{background:#fff}}
+.modal::-webkit-scrollbar{width:10px}
+.modal::-webkit-scrollbar-thumb{background:#e3d6bb;border-radius:8px;border:3px solid #fffdf7}
+
+.m-head{
+  position:relative;padding:22px 26px 16px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--c) 24%, transparent), transparent);
+  border-bottom:2px dashed var(--line);
+  overflow:hidden;
+}
+.m-head .doodlebg{position:absolute;inset:0;opacity:.16;color:var(--c);pointer-events:none}
+.m-nr{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Caveat',cursive;font-size:18px;color:var(--c);font-weight:700;
+}
+.m-nr .chip{
+  width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;
+  display:grid;place-items:center;font-size:17px;box-shadow:var(--shadow-sm)}
+.m-badge{
+  float:right;margin:2px 44px 2px 0;font-size:11px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--c);
+  background:color-mix(in srgb,var(--c) 16%,#fff);border:1.5px solid color-mix(in srgb,var(--c) 35%,#fff);
+  padding:4px 11px;border-radius:20px;white-space:nowrap}
+.m-title{
+  margin:6px 0 2px;font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(30px,5.4vw,40px);line-height:1.02;color:var(--ink);position:relative}
+.m-sub{margin:0;font-size:14px;color:var(--ink-soft);position:relative;max-width:46ch}
+
+.m-body{padding:18px 26px 6px}
+.m-body p{margin:.1em 0 .9em;font-size:15.5px;line-height:1.62;color:#403a31}
+.m-body p b{color:#2c2720}
+.m-quote{
+  margin:4px 0 16px;padding:11px 16px;border-left:4px solid var(--c);
+  background:color-mix(in srgb,var(--c) 7%,#fff);border-radius:0 12px 12px 0;
+  font-size:14px;color:var(--ink-soft)}
+.m-quote b{color:var(--c)}
+
+.m-sketches{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 18px}
+.m-sketches figure{margin:0;flex:1 1 120px;max-width:170px;text-align:center}
+.m-sketches img{width:100%;height:auto;display:block;
+  filter:drop-shadow(0 8px 12px rgba(70,52,25,.18))}
+.m-sketches figcaption{font-family:'Caveat',cursive;font-size:16px;color:var(--ink-soft);margin-top:2px}
+
+.m-evi-h{font-family:'Caveat',cursive;font-weight:700;font-size:20px;margin:6px 0 8px;color:var(--ink)}
+.m-evidence{display:flex;gap:11px;flex-wrap:wrap;margin:0 0 6px}
+.evi{
+  display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink);
+  background:rgba(255,255,255,.45);
+  -webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);
+  border:var(--glass-edge);border-radius:13px;
+  padding:8px 13px 8px 9px;box-shadow:var(--shadow-sm), var(--glass-sheen);
+  transition:transform .14s, box-shadow .14s;font-size:13px;line-height:1.15;
+}
+.evi:hover{transform:translateY(-3px) rotate(-.6deg);box-shadow:0 12px 22px -10px rgba(70,52,25,.5)}
+.evi:focus-visible{outline:2.5px solid var(--c);outline-offset:2px}
+.evi .ic{flex:none;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c)}
+.evi .ic svg{width:18px;height:18px}
+.evi b{font-weight:600;display:block}
+.evi small{color:var(--ink-soft);font-size:11px}
+.evi.photo{padding:0;overflow:hidden;width:84px;height:64px;border-radius:12px}
+.evi.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.evi.photo span{position:absolute}
+
+.m-foot{
+  position:sticky;bottom:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:14px 26px;background:linear-gradient(0deg,rgba(255,253,247,.9) 72%,transparent);
+  border-top:1.5px solid var(--line)}
+.btn{
+  font-family:'Inter';font-size:14.5px;font-weight:600;cursor:pointer;border:none;
+  border-radius:30px;padding:11px 20px;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .14s, box-shadow .14s, background .2s}
+.btn-primary{background:var(--c);color:#fff;
+  box-shadow:0 8px 16px -6px color-mix(in srgb,var(--c) 80%,#000), inset 0 1px 0 rgba(255,255,255,.35)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-primary.is-on{background:var(--c-buiten)}
+.btn-ghost{background:rgba(255,255,255,.3);
+  -webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);
+  color:var(--ink-soft);border:var(--glass-edge)}
+.btn-ghost:hover{background:rgba(255,255,255,.5);color:var(--ink)}
+.btn:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.m-foot .spacer{flex:1}
+.m-nav{display:flex;gap:6px}
+.m-nav button{width:40px;height:40px;border-radius:50%;border:var(--glass-edge);
+  background:rgba(255,255,255,.42);
+  -webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);
+  box-shadow:var(--glass-sheen);
+  cursor:pointer;color:var(--ink);display:grid;place-items:center;transition:transform .14s,background .15s}
+.m-nav button:hover{transform:translateY(-2px);background:rgba(255,255,255,.65)}
+.m-nav button:disabled{opacity:.35;cursor:default;transform:none}
+
+.closeX{position:absolute;top:12px;right:14px;z-index:3;width:38px;height:38px;border-radius:50%;
+  border:var(--glass-edge);background:rgba(255,255,255,.4);
+  -webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);
+  box-shadow:var(--glass-sheen);cursor:pointer;
+  font-size:22px;line-height:1;color:var(--ink-soft);display:grid;place-items:center;
+  transition:transform .14s, background .15s}
+.closeX:hover{transform:rotate(90deg);background:rgba(255,255,255,.65);color:var(--ink)}
+
+/* ───────────────────────── ABOUT / kleurplaat-pop-up ───────────────────────── */
+.about-modal .m-head{
+  background:linear-gradient(180deg,rgba(254,243,223,.65),transparent);
+  border-bottom:2px dashed var(--line)}
+.colorbook{
+  position:absolute;inset:0;opacity:.22;pointer-events:none;color:#c9a24a;
+}
+.about-modal .m-body p{font-size:15.5px}
+.legend-key{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 10px}
+.legend-key span{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-soft)}
+.legend-key i{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* ───────────────────────── confetti ───────────────────────── */
+.confetti{position:fixed;inset:0;z-index:39;pointer-events:none;overflow:hidden}
+
+/* ───────────────────────── footer ───────────────────────── */
+.foot{
+  position:relative;z-index:2;text-align:center;
+  padding:8px 16px 40px;color:var(--ink-soft);font-size:13px}
+.foot .sig{font-family:'Caveat',cursive;font-size:30px;color:var(--ink);transform:rotate(-3deg);display:inline-block}
+.foot a{color:var(--ink-soft)}
+
+/* ───────────────────────── reduced motion ───────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.05ms !important}
+}
+
+/* ───────────────────────── mobiel ───────────────────────── */
+@media (max-width:760px){
+  .stage{width:97vw;aspect-ratio:88 / 132}
+  .titel{width:50cqw;margin-left:-25cqw;top:0}
+  .kind{width:39cqw;margin-left:-19.5cqw;top:36%}
+  .kind .name-tag{font-size:6.6cqw}
+  .sketch .cap{font-size:4cqw}
+  .panel{display:none}
+  .panel.show{display:block;top:auto;bottom:84px;right:12px;left:12px;width:auto}
+  /* de afvink-knop wordt een zwevende knop rechtsonder, zodat 'ie niet botst met 'Over deze tekening' */
+  .panel-toggle{display:flex;flex-direction:column;line-height:1;top:auto;bottom:18px;right:16px}
+  .brand .who{display:none}
+  .about-btn{font-size:17px;padding:4px 13px 6px}
+  .topbar{padding-top:14px}
+  .m-body,.m-head,.m-foot{padding-left:18px;padding-right:18px}
+  .m-sketches figure{flex-basis:90px}
+}
+@media (max-width:760px) and (orientation:landscape){
+  .stage{aspect-ratio:118/80}
+  .titel{width:24cqw;margin-left:-12cqw}
+  .kind{width:24cqw;margin-left:-12cqw}
+}
 </style>
 </head>
-<body>
-<div class="wrap">
 
-  <div class="topbar"><button class="present-btn" id="presBtn">▶ Presentatiemodus</button></div>
+<body class="pending">
 
-  <header class="top">
-    <h1>Mijn CGI</h1>
-    <p class="sub">een kindertekening · Smart Media Production — Max Helmantel</p>
-    <div><span class="hint">Tik op mij en op elke tekening, en kleur mijn verhaal compleet 🖍️</span></div>
-    <div class="lv"><span class="lvtag">Lerend Vermogen aangetoond met&nbsp;<b>LV&nbsp;1.3</b>&nbsp;en&nbsp;<b>LV&nbsp;4.3</b></span></div>
-  </header>
+<!-- achtergrond -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-paper"></div>
+  <div class="bg-color" id="bgColor"></div>
+  <div class="bg-grain"></div>
+  <div class="bg-vignette"></div>
+</div>
 
-  <!-- ===================== DE TEKENING ===================== -->
-  <svg class="scene" viewBox="0 0 1000 770" width="1000" height="770" role="group"
-       aria-label="Zelfportret met vijf aanklikbare tekeningen">
-    <defs>
-      <filter id="rough" x="-8%" y="-8%" width="116%" height="116%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
-      </filter>
-      <clipPath id="photoClip"><circle cx="500" cy="400" r="80"/></clipPath>
-    </defs>
+<!-- topbalk -->
+<header class="topbar">
+  <div class="brand" id="brand">
+    <img src="assets/kaires-logo.png" alt="Kaires" onerror="this.style.display='none'">
+    <div class="who"><b>Max Helmantel</b>CGI · Smart Media Production</div>
+  </div>
+  <button class="about-btn" id="aboutBtn" aria-haspopup="dialog">Over deze tekening</button>
+</header>
 
-    <g filter="url(#rough)" opacity=".6">
-      <g stroke="#8fbf6a" stroke-width="3.4" stroke-linecap="round" fill="none">
-        <path d="M470,540 q5,-18 0,-30 M482,540 q11,-13 16,-25"/>
-        <path d="M520,540 q-5,-18 0,-30 M508,540 q-11,-13 -16,-25"/>
-      </g>
-    </g>
+<!-- voortgangspaneel -->
+<button class="panel-toggle" id="panelToggle" aria-expanded="false" aria-controls="panel">
+  <b id="ptFrac">0/7</b><span>onderdelen</span>
+</button>
+<aside class="panel" id="panel" aria-label="Beoordeling: voortgang per onderdeel">
+  <h2>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Mijn CGI
+      <span class="mini">vink elk onderdeel af</span>
+    </span>
+  </h2>
+  <div class="meter"><i id="meter"></i></div>
+  <ul id="checklist"></ul>
+  <div class="done-all">Alles ingekleurd. Mijn CGI is compleet. ☀️</div>
+</aside>
 
-    <!-- gedachtenwolk -->
-    <g fill="var(--paper)" stroke="#cabfa6" stroke-width="3" filter="url(#rough)">
-      <circle cx="505" cy="300" r="11" stroke="#cabfa6"/>
-      <circle cx="500" cy="277" r="8"  stroke="#cabfa6"/>
-      <circle cx="498" cy="259" r="6"  stroke="#cabfa6"/>
-    </g>
-    <g filter="url(#rough)" fill="var(--paper)" stroke="#bdb298" stroke-width="3.4">
-      <g stroke="#bdb298">
-        <circle cx="430" cy="140" r="42"/><circle cx="470" cy="108" r="46"/>
-        <circle cx="520" cy="100" r="50"/><circle cx="566" cy="116" r="44"/>
-        <circle cx="602" cy="142" r="40"/><circle cx="562" cy="172" r="46"/>
-        <circle cx="506" cy="180" r="50"/><circle cx="455" cy="172" r="44"/>
-      </g>
-    </g>
-    <g id="tangle" filter="url(#rough)" fill="none" stroke="#9a9183" stroke-width="3.4" stroke-linecap="round">
-      <path d="M468,140 q-14,-26 18,-30 q34,-4 30,24 q-3,26 -34,20 q-30,-6 -14,-34
-               q16,-26 46,-10 q26,14 8,40 q-18,24 -44,6"/>
-      <path d="M500,118 q22,10 14,34 M486,166 q-8,-22 18,-30"/>
-    </g>
-    <g id="calm" filter="url(#rough)">
-      <g id="sunrays" stroke="#f3a712" stroke-width="4" stroke-linecap="round">
-        <path d="M510,86 V68 M510,194 V212 M456,140 H438 M564,140 H582
-                 M472,102 L460,90 M548,102 L560,90 M472,178 L460,190 M548,178 L560,190"/>
-      </g>
-      <circle cx="510" cy="140" r="31" fill="#ffe08a" stroke="#f3a712" stroke-width="4"/>
-      <path d="M497,146 q13,14 26,0" fill="none" stroke="#b9770a" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="500" cy="133" r="3.2" fill="#b9770a"/><circle cx="520" cy="133" r="3.2" fill="#b9770a"/>
-    </g>
+<!-- stage -->
+<main class="stage-wrap">
+  <div class="stage" id="stage">
+    <div class="titel" id="titel">
+      <div class="titel-txt">Mijn CGI</div>
+    </div>
 
-    <!-- ABOUT ME : fotocirkel midden (klikbaar) -->
-    <g class="doodle hot" data-c="about" role="button" tabindex="0" aria-label="About me — dat ben ik"
-       style="--c:#e8590c;--c-soft:#f8cba6">
-      <rect class="ring-focus" x="402" y="312" width="196" height="250" rx="46"/>
-      <g id="facePlaceholder" filter="url(#rough)">
-        <circle cx="500" cy="400" r="80" fill="#fdeede"/>
-        <g class="ln" fill="none" stroke-width="4" stroke-linecap="round">
-          <circle cx="476" cy="391" r="5" fill="#cbbfa6" stroke="none"/>
-          <circle cx="524" cy="391" r="5" fill="#cbbfa6" stroke="none"/>
-          <path d="M474,428 q26,22 52,0"/>
-          <path d="M454,372 q14,-44 92,-12"/>
-        </g>
-      </g>
-      <image href="assets/kind.png" x="420" y="320" width="160" height="160"
-             clip-path="url(#photoClip)" preserveAspectRatio="xMidYMid slice"
-             onerror="this.style.display='none'"/>
-      <circle cx="500" cy="400" r="80" fill="none" stroke="#f59f00" stroke-width="6"
-              stroke-linecap="round" stroke-dasharray="3 12" filter="url(#rough)"/>
-      <path d="M454,468 q46,38 92,0 l10,30 H444 Z" fill="#ffe3b0" stroke="#e8b860"
-            stroke-width="3.5" filter="url(#rough)"/>
-      <g class="badge"><circle cx="566" cy="336" r="14" fill="#2f9e44"/>
-        <path d="M558,336 l6,7 l10,-13" stroke="#fff" stroke-width="3.6" fill="none"
-              stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" x="500" y="536">About me</text>
-    </g>
+    <div class="kind" id="kind">
+      <img src="assets/kind.png" alt="Max als kind">
+      <div class="ring"></div>
+      <div class="name-tag">dit ben ik</div>
+    </div>
+    <!-- schetsen worden door JS ingevoegd -->
+  </div>
+</main>
 
-    <!-- 5 tekening-slots (leerdoelen gebundeld) -->
-    <g class="doodle hot" data-c="pop" role="button" tabindex="0" aria-label="POP-leerdoelen en beroepsrol"
-       style="--c:#1c7ed6;--c-soft:#b8dbf7" transform="translate(158 290)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="pop">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">pop.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/pop.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">POP &amp; rol</text>
-    </g>
+<p class="hint" id="hint">Tik een schets aan en <span class="key">kleur 'm in</span></p>
 
-    <g class="doodle hot" data-c="leerdoelen" role="button" tabindex="0" aria-label="Leerdoelen — proces en bewijslast"
-       style="--c:#2f9e44;--c-soft:#bfe3c8" transform="translate(842 290)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="leerdoelen">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">leerdoelen.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/leerdoelen.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Leerdoelen</text>
-    </g>
-
-    <g class="doodle hot" data-c="reflectie" role="button" tabindex="0" aria-label="Reflectie"
-       style="--c:#e0a500;--c-soft:#f7e3a1" transform="translate(158 500)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="reflectie">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">reflectie.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/reflectie.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Reflectie</text>
-    </g>
-
-    <g class="doodle hot" data-c="ethisch" role="button" tabindex="0" aria-label="Ethisch dilemma"
-       style="--c:#7048e8;--c-soft:#d3c7f9" transform="translate(842 500)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="ethisch">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">ethisch.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/ethisch.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Ethisch dilemma</text>
-    </g>
-
-    <g class="doodle hot" data-c="visie" role="button" tabindex="0" aria-label="Visie als mediamaker"
-       style="--c:#d6336c;--c-soft:#f4b9d0" transform="translate(500 648)">
-      <rect class="ring-focus" x="-80" y="-78" width="160" height="190" rx="16"/>
-      <g class="slot" data-slot="visie">
-        <g class="ph"><rect x="-60" y="-62" width="120" height="120" rx="16"/>
-          <text class="ph-name" y="-4">visie.png</text><text class="ph-hint" y="20">jouw tekening</text></g>
-        <image class="draw" href="assets/visie.png" x="-64" y="-66" width="128" height="128" preserveAspectRatio="xMidYMid meet"/>
-      </g>
-      <g class="badge"><circle cx="54" cy="-54" r="13" fill="#2f9e44"/>
-        <path d="M47,-54 l5,6 l9,-12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
-      <text class="dlabel" y="100">Visie</text>
-    </g>
-
-  </svg>
-  <!-- ===================== /DE TEKENING ===================== -->
-
-  <div class="legend" id="legend" aria-label="Legenda — ook aanklikbaar"></div>
-  <p class="progress" id="progress" aria-live="polite"></p>
-
-</div><!-- /wrap -->
-
-<footer class="sign wrap" style="padding-top:0">
-  <span class="name">— Max</span><img src="assets/kaires-logo.png" alt="" onerror="this.style.display='none'">
+<footer class="foot">
+  <div class="sig">— Max</div>
+  <p>Max Helmantel · Smart Media Production · CGI, juni 2026<br>
+  <a href="https://kaires.nl" target="_blank" rel="noopener">kaires.nl</a> ·
+  <a href="https://backtobeing.tech" target="_blank" rel="noopener">backtobeing.tech</a></p>
 </footer>
 
-<!-- paneel -->
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="pTitle">
-  <div class="card" id="card" style="--c:#e4572e">
+<!-- onderdeel pop-up -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal" id="modal" style="--c:var(--c-prof)">
     <button class="closeX" id="closeX" aria-label="Sluiten">×</button>
-    <h2 id="pTitle">Titel</h2>
-    <p class="sub2" id="pSub">subtitel</p>
-    <span class="pill-lv" id="pLv" hidden></span>
-    <div class="body" id="pBody"></div>
-    <div class="drop" id="pDrop"></div>
-    <div class="actions">
-      <button class="btn ok" id="pOk" type="button">Zo is het</button>
-      <button class="btn ghost" id="pClose" type="button">Sluiten</button>
+    <div class="m-head">
+      <div class="doodlebg" id="doodlebg"></div>
+      <span class="m-badge">Streefniveau · Excellent</span>
+      <span class="m-nr"><span class="chip" id="mChip">1</span><span id="mKicker">Onderdeel</span></span>
+      <h2 class="m-title" id="mTitle">Titel</h2>
+      <p class="m-sub" id="mSub"></p>
+    </div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-foot">
+      <button class="btn btn-primary" id="mConfirm">Zo is het, kleur in</button>
+      <div class="spacer"></div>
+      <div class="m-nav">
+        <button id="mPrev" aria-label="Vorige onderdeel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button id="mNext" aria-label="Volgende onderdeel"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ===================== PRESENTATIEMODUS ===================== -->
-<div class="present" id="present" hidden role="dialog" aria-modal="true" aria-label="Presentatiemodus">
-  <button class="pres-exit" id="presExit" aria-label="Sluit presentatie">✕</button>
-  <div class="pres-stage">
-    <div class="pres-figure" id="presFigure"></div>
-    <div class="pres-copy">
-      <div class="pres-count" id="presCount"></div>
-      <h2 id="presTitle"></h2>
-      <p class="pres-sub" id="presSub"></p>
-      <span class="pill-lv" id="presLv" hidden></span>
-      <div class="pres-body" id="presBody"></div>
-      <div class="pres-drop" id="presDrop"></div>
+<!-- about / kleurplaat pop-up -->
+<div class="overlay" id="aboutOverlay" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="modal about-modal">
+    <button class="closeX" id="aboutClose" aria-label="Sluiten">×</button>
+    <div class="m-head">
+      <div class="colorbook" id="colorbook"></div>
+      <span class="m-nr"><span class="chip" style="background:var(--c-inzicht)">?</span>Over deze tekening</span>
+      <h2 class="m-title" id="aboutTitle">Waarom een kindertekening</h2>
+      <p class="m-sub">Mijn CGI-presentatie voor Smart Media Production.</p>
     </div>
-  </div>
-  <div class="pres-nav">
-    <button class="pres-arrow" id="presPrev" aria-label="Vorige">←</button>
-    <div class="pres-dots" id="presDots"></div>
-    <button class="pres-arrow" id="presNext" aria-label="Volgende">→</button>
+    <div class="m-body">
+      <p>Deze pagina is met opzet een <b>kindertekening</b>. Dit blok ben ik teruggegaan
+      naar het kleine kind in mij, juist via kwetsbare momenten, en heb ik dat als
+      inspiratie gebruikt om verder te gaan (<b>Back to Being</b>). Mijn rode draad:
+      groeien als <i>creative in the loop</i>.</p>
+      <p>De normale staat is <b>canvas</b>: beige papier, alles in potlood. <b>Klik een
+      tekening aan en hij kleurt in</b>, want dat is de kleur die ik zelf zie. Hoe meer ik
+      inkleur, hoe meer mijn wereld in kleur verschijnt.</p>
+      <p>Rechtsboven staan de onderdelen van mijn CGI. Met dit CGI toon ik twee
+      gedragsindicatoren van <b>Lerend Vermogen</b> aan: <b>LV&nbsp;1.3</b> (kritisch
+      reflecteren op mijn eigen ontwikkeling) en <b>LV&nbsp;4.3</b> (ethisch handelen met
+      slimme technologie).</p>
+      <div class="legend-key">
+        <span><i style="background:#e3ab1f"></i>POP &amp; rol</span>
+        <span><i style="background:#3f9f54"></i>Leerdoelen</span>
+        <span><i style="background:#d6457e"></i>Reflectie</span>
+        <span><i style="background:#2f86c9"></i>Ethisch dilemma</span>
+        <span><i style="background:#7048e8"></i>Visie</span>
+        <span><i style="background:#0c8599"></i>Gespreksstarter</span>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-primary" id="aboutStart" style="--c:var(--c-inzicht)">Begin met inkleuren</button>
+    </div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
 <script>
-/* ======================================================================
-   DATA — tekst (body), bewijs (drop), gedragsindicator (lv), tekening (img).
-   ====================================================================== */
-const DATA = {
+/* =====================================================================
+   DATA — de vijf onderdelen van de beoordeling, gekoppeld aan schetsen.
+   Toon van Max: concreet, story-driven, eerlijk. Geen em-dashes.
+   ===================================================================== */
+const TICK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
+
+const PDF_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
+const LINK_IC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>`;
+
+const PARTS = {
   about: {
-    title:"About me", sub:"Dat ben ik", color:"#e8590c", soft:"#f8cba6", img:"assets/kind.png",
-    body:`<p>Ik ben <b>Max Helmantel</b>, afstudeerder Smart Media Production en
-          medeoprichter van <b>Kaires</b>: slimme muziekprofilering voor retail.
-          Ik werk op het snijvlak van creativiteit, design en AI en vertaal nieuwe
-          technologie snel naar werkende concepten. Mijn rode draad dit blok: groeien
-          als <i>creative in the loop</i>.</p>`,
-    drop:``
+    nr:1, c:'#e8743b', kicker:'Dat ben ik', lv:'',
+    title:'About me',
+    sub:'Max Helmantel, afstudeerder Smart Media Production en medeoprichter van Kaires.',
+    body:`
+      <p>Ik ben <b>Max Helmantel</b>, medeoprichter en CEO/COO van <b>Kaires</b>:
+      slimme, context-adaptieve muziek voor retail. Ik werk op het snijvlak van
+      <b>creativiteit, design en AI</b> en vertaal nieuwe technologie snel naar een
+      werkend concept.</p>
+      <p>Deze presentatie is met opzet een kindertekening. Dit blok ben ik teruggegaan
+      naar het kleine kind in mij, juist uit kwetsbare momenten, en heb ik dat als
+      inspiratie gebruikt om verder te gaan. Mijn rode draad: groeien als
+      <i>creative in the loop</i>.</p>`,
+    quote:`Niet de techniek maakt het verschil, maar de <b>mens</b> die haar stuurt.`,
+    sketches:['kind'],
+    evidence:[
+      {type:'pdf', href:'assets/POP.pdf', label:'Mijn POP', sub:'persoonlijk ontwikkelplan'}
+    ]
   },
   pop: {
-    title:"POP-leerdoelen & beroepsrol", sub:"Waar ik naartoe werk",
-    color:"#1c7ed6", soft:"#b8dbf7", lv:"LV 1.3", img:"assets/pop.png",
-    body:`<p>Mijn <b>beroepsrol</b>: <i>creative in the loop</i>, iemand die
-          creativiteit, design en techniek verbindt.</p>
-          <p>Twee leerdoelen staan centraal:</p>
-          <p>1. Mezelf positioneren als creative in the loop.<br>
-             2. Bewuster werken vanuit rust en focus, en zichtbaarder worden.</p>`,
-    drop:`<a class="btn" href="assets/POP.pdf" target="_blank">Open mijn POP</a>`
+    nr:2, c:'#e3ab1f', kicker:'Waar ik heen werk', lv:'',
+    title:'POP-leerdoelen & beroepsrol',
+    sub:'Mijn beroepsrol is creative in the loop. Twee leerdoelen staan centraal.',
+    body:`
+      <p>Mijn <b>beroepsrol</b> is <i>creative in the loop</i>: iemand die creativiteit,
+      design en techniek met elkaar verbindt.</p>
+      <p>Twee leerdoelen staan dit blok centraal:</p>
+      <p><b>1. Creative in the loop worden</b> — laten zien dat creativiteit relevant
+      blijft in een tijd van AI.<br>
+      <b>2. Rust, focus &amp; zichtbaarheid</b> — bewuster kiezen waar ik mijn energie in
+      steek, en mezelf zichtbaar maken.</p>`,
+    quote:`Mijn kracht: snel verbanden leggen tussen disciplines en nieuwe technologie
+      vertalen naar een werkend concept.`,
+    sketches:['logo'],
+    evidence:[
+      {type:'pdf', href:'assets/POP.pdf', label:'POP', sub:'leerdoelen & beroepsrol'},
+      {type:'pdf', href:'assets/ontwikkelcanvas.pdf', label:'Ontwikkelcanvas', sub:'beginsituatie'}
+    ]
   },
   leerdoelen: {
-    title:"Leerdoelen", sub:"Proces & bewijslast",
-    color:"#2f9e44", soft:"#bfe3c8", lv:"LV 1.3", img:"assets/leerdoelen.png",
-    body:`<p><b>Leerdoel 1 — creative in the loop:</b> laten zien dat creativiteit
-          relevant blijft in een tijd van AI. Met Kaires bouwde ik van concept naar
-          werkend product (de CAS-engine) en gaf ik trainingen.</p>
-          <p><b>Leerdoel 2 — rust, focus &amp; zichtbaarheid:</b> bewuster kiezen waar ik
-          mijn energie in steek, en zichtbaarder worden via de keynote, mijn netwerk en
-          LinkedIn.</p>
-          <p><b>Bewijslast:</b> het Kaires-product (hoor het hieronder), het impactverslag,
-          het merk en de keynote/het netwerk.</p>`,
-    drop:`<audio controls preload="none" src="assets/kaires-fragment.mp3" style="width:100%;margin-bottom:10px"></audio>
-          <div class="btnrow">
-            <a class="btn" href="assets/kaires-workflow.pdf" target="_blank">Het muziekprofilering-proces</a>
-            <a class="btn ghost" href="assets/kaires-impactverslag.pdf" target="_blank">Impactverslag</a>
-            <a class="btn ghost" href="assets/kaires-brandbook.pdf" target="_blank">Merk &amp; positionering</a>
-          </div>`
+    nr:3, c:'#3f9f54', kicker:'Proces & bewijslast', lv:'LV 1.3',
+    title:'Leerdoelen',
+    sub:'Wat ik liet zien op beide leerdoelen, met het bewijs erbij.',
+    body:`
+      <p><b>Leerdoel 1, creative in the loop.</b> Met Kaires bracht ik het
+      <b>CAS-concept</b> (Context Arousal Score) tot leven en bouwde ik van idee naar
+      werkend product. Met de <b>pilot bij Beauty X</b> werd het concreet: geen plan
+      meer, maar een eerste klant in een echte winkel.</p>
+      <p><b>Leerdoel 2, rust, focus &amp; zichtbaarheid.</b> Ik koos bewuster waar ik
+      energie in stak en trad naar buiten: een <b>keynote van 25 minuten</b> op het
+      <b>RAAIT / INretail</b>-podium, pitches en een groeiend netwerk.</p>`,
+    quote:`Onze kans zit in <b>context-adaptieve, AI-gegenereerde muziek</b>, premium
+      gepositioneerd in plaats van als goedkoop alternatief.`,
+    sketches:['desprong','beautyx'],
+    evidence:[
+      {type:'pdf', href:'assets/kaires-impactverslag.pdf', label:'Impactverslag', sub:'Beauty X-pilot'},
+      {type:'pdf', href:'assets/brandbook.pdf', label:'Kaires brandbook', sub:'merk & CAS'},
+      {type:'photo', href:'assets/keynote-foto.jpg', label:'Keynote RAAIT'},
+      {type:'pdf', href:'assets/feedback-jurgen.pdf', label:'Feedback keynote', sub:'Jurgen'}
+    ]
   },
   reflectie: {
-    title:"Reflectie", sub:"Wat ik over mezelf leerde",
-    color:"#e0a500", soft:"#f7e3a1", lv:"LV 1.3", img:"assets/reflectie.png",
-    body:`<p>Hard werken is niet hetzelfde als goed werken. Mijn beste werk ontstaat bij
-          onderwerpen waar ik écht nieuwsgierig naar ben. Door steeds feedback te vragen
-          en bij te sturen, kreeg ik meer inzicht in mijn eigen leerproces, en leerde ik
-          ambitie en rust te combineren.</p>`,
-    drop:``
+    nr:4, c:'#d6457e', kicker:'Terug naar mezelf', lv:'LV 1.3',
+    title:'Reflectie',
+    sub:'Wat ik over mezelf leerde, en hoe ik daarop bijstuur.',
+    body:`
+      <p>Hard werken is niet hetzelfde als goed werken. Mijn beste werk ontstaat bij
+      onderwerpen waar ik echt <b>nieuwsgierig</b> naar ben. Mijn coach zei het raak:
+      <i>mijn hoofd is mijn grootste obstakel</i>.</p>
+      <p>Mijn grootste inzicht: ik vroeg feedback vaak om me <b>gevalideerd</b> te
+      voelen, niet om te verbeteren. Dat draai ik om, ik vraag actief feedback en pas
+      het meteen toe. Met <b>Back to Being</b> ging ik terug naar het kleine kind in
+      mij en haalde ik juist uit kwetsbaarheid weer iets moois.</p>`,
+    quote:`Van feedback <b>om gevalideerd te worden</b> naar feedback <b>om te
+      verbeteren</b>. Inzicht is pas iets waard als je het inzet.`,
+    sketches:['backtobeing','volleybal'],
+    evidence:[
+      {type:'pdf', href:'assets/feedback-ron.pdf', label:'Feedback', sub:'Ron Simpson'},
+      {type:'pdf', href:'assets/feedback-eindpresentatie.pdf', label:'Feedback', sub:'eindpresentatie'},
+      {type:'pdf', href:'assets/kernkwadranten-swot.pdf', label:'Kernkwadranten', sub:'Enneagram 4 + 8'}
+    ]
   },
   ethisch: {
-    title:"Ethisch dilemma", sub:"AI, muziek & makers",
-    color:"#7048e8", soft:"#d3c7f9", lv:"LV 4.3", img:"assets/ethisch.png",
-    body:`<p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept
-          een vraag op: wat betekent dit voor de waarde van menselijke makers en
-          muzikanten? Mag je AI-muziek inzetten zonder het te labelen?</p>
-          <p>Ik weeg efficiëntie en kosten af tegen eerlijkheid naar artiesten en
-          transparantie naar de luisteraar, en kies bewust voor transparant gebruik.</p>`,
-    drop:``
+    nr:5, c:'#2f86c9', kicker:'AI, muziek & makers', lv:'LV 4.3',
+    title:'Ethisch dilemma',
+    sub:'Wat doet AI-muziek met de waarde van de menselijke maker?',
+    body:`
+      <p>Met Kaires zet ik <b>AI-gegenereerde muziek</b> in voor retail. Dat roept een
+      scherpe vraag op: wat betekent dit voor de <b>waarde van menselijke makers</b> en
+      muzikanten? En mag je AI-muziek inzetten zonder het te labelen?</p>
+      <p>Het concreetst werd dit bij de <b>muziekrechten</b>: kunnen we met eigen muziek
+      de afdracht aan <b>Buma/Stemra</b> vermijden? Ik baseerde dat niet op een aanname,
+      maar liet het checken bij het <b>juridisch loket</b> en een <b>advocaat</b>. Op
+      basis daarvan koos ik bewust voor transparant en eerlijk gebruik.</p>`,
+    quote:`Een <b>gecalculeerde keuze</b> in plaats van een aanname: eerst de rechten
+      checken, daarna bewust handelen.`,
+    sketches:['platenhoes'],
+    evidence:[
+      {type:'pdf', href:'assets/muziekrechten-loket.pdf', label:'Onderzoek muziekrechten', sub:'juridisch loket'},
+      {type:'photo', href:'assets/rechtenfaculteit.jpg', label:'Rechtenfaculteit', sub:'testsessie'}
+    ]
   },
   visie: {
-    title:"Visie als mediamaker", sub:"Creative in the loop",
-    color:"#d6336c", soft:"#f4b9d0", lv:"LV 4.3", img:"assets/visie.png",
-    body:`<p>Creativiteit blijft relevant in een tijd van AI. Met Kaires maak ik
-          <b>context-adaptieve, AI-gegenereerde muziek</b> en positioneer ik die niet als
-          goedkoop alternatief, maar als <b>premium</b>.</p>
-          <p>Als <i>creative in the loop</i> verbind ik creativiteit, design en techniek,
-          en wil ik Kaires als <b>thought leader</b> naar buiten brengen.</p>`,
-    drop:``
+    nr:6, c:'#7048e8', kicker:'Creative in the loop', lv:'LV 4.3',
+    title:'Visie als mediamaker',
+    sub:'De mens stuurt, de technologie speelt.',
+    body:`
+      <p>Creativiteit blijft relevant in een tijd van AI. Ik geloof in de
+      <i>creative in the loop</i>: de mens die met smaak, ethiek en betekenis de
+      technologie aanstuurt, zoals een dirigent een orkest.</p>
+      <p>Met Kaires maak ik <b>context-adaptieve AI-muziek</b> en positioneer ik die als
+      <b>premium</b>, niet als goedkoop alternatief. Ik wil Kaires als
+      <b>thought leader</b> naar buiten brengen, niet als product-pitch.</p>`,
+    quote:`De mens als <b>dirigent</b> van de technologie. Daar ligt de waarde van de
+      creatief, ook in een tijd van AI.`,
+    sketches:['dirigent'],
+    evidence:[
+      {type:'pdf', href:'assets/artikel-back-to-being.pdf', label:'Back to Being', sub:'Noordhollands Dagblad'},
+      {type:'link', href:'https://kaires.nl', label:'kaires.nl', sub:'de onderneming'}
+    ]
   },
   gesprek: {
-    title:"Gespreksstarter", sub:"Vraag voor het gesprek",
-    color:"#0c8599", soft:"#ace3ec", img:"assets/gesprek.png",
-    body:`<p style="font-size:18px"><i>"Als AI straks elke noot kan genereren, is de
-          creatief dan nog <b>maker</b> of vooral <b>curator</b>, en waar ligt dan de
-          waarde?"</i></p>
-          <p>Hier ga ik graag met jullie het gesprek over aan.</p>`,
-    drop:``
+    nr:7, c:'#0c8599', kicker:'Een vraag voor jullie', lv:'',
+    title:'Gespreksstarter',
+    sub:'Waar ik graag met jullie over doorpraat.',
+    body:`
+      <p style="font-size:17px"><i>"Als AI straks elke noot kan genereren, is de creatief
+      dan nog <b>maker</b> of vooral <b>curator</b>, en waar ligt dan de waarde?"</i></p>
+      <p>Ik ben benieuwd hoe jullie de rol van de creatief over vijf jaar zien.</p>`,
+    quote:``,
+    sketches:['netwerken'],
+    evidence:[
+      {type:'pdf', href:'assets/netwerkverslag.pdf', label:'Netwerkverslag', sub:'netwerk & partnerships'}
+    ]
   }
 };
 
-const order = Object.keys(DATA);
-const done  = new Set();
-const svg   = document.querySelector('.scene');
-const $ = s => document.querySelector(s);
+/* schetsen: positie op de stage (left/top in %, breedte in cqw, rotatie) */
+const SKETCHES = {
+  kind:        {part:'about',      isCenter:true},
+  dirigent:    {part:'visie',      img:'assets/dirigent.png',     cap:'de dirigent',      l:66, t:47, w:12, r:3 },
+  platenhoes:  {part:'ethisch',    img:'assets/platenhoes.png',   cap:'platenhoes',       l:5,  t:7,  w:14, r:-3},
+  volleybal:   {part:'reflectie',  img:'assets/volleybal.png',    cap:'volleybal met pa', l:26, t:11, w:12, r:-5},
+  logo:        {part:'pop',        img:'assets/logo-schets.png',  cap:'merk & CAS',       l:7,  t:46, w:13, r:-4},
+  desprong:    {part:'leerdoelen', img:'assets/de-sprong.png',    cap:'de sprong',        l:82, t:44, w:13, r:3 },
+  backtobeing: {part:'reflectie',  img:'assets/back-to-being.png',cap:'back to being',    l:4,  t:71, w:17, r:4 },
+  beautyx:     {part:'leerdoelen', img:'assets/beautyx.png',      cap:'pilot Beauty X',   l:29, t:80, w:15, r:-3},
+  netwerken:   {part:'gesprek',    img:'assets/netwerken.png',    cap:'netwerk',          l:75, t:72, w:14, r:-6}
+};
 
-/* tekening-slots: placeholder weg zodra een plaatje laadt; bij ontbreken
-   verbergen we het (gebroken) plaatje zodat alleen de placeholder blijft. */
-document.querySelectorAll('.slot .draw').forEach(img=>{
-  img.addEventListener('load', ()=> img.closest('.slot').classList.add('loaded'));
-  img.addEventListener('error', ()=>{ img.style.display='none'; });
-});
-
-/* legenda */
-const legend = $('#legend');
-order.forEach(c=>{
-  const d = DATA[c];
-  const b = document.createElement('button');
-  b.className='chip'; b.dataset.c=c; b.type='button';
-  b.style.setProperty('--c', d.color); b.style.setProperty('--c-soft', d.soft);
-  b.innerHTML = `<span class="dot"></span>${d.title.split(' — ')[0]}`;
-  b.addEventListener('click', ()=>open(c));
-  legend.appendChild(b);
-});
-
-/* paneel */
-const overlay=$('#overlay'), card=$('#card');
-let current=null;
-function open(c){
-  current=c; const d=DATA[c];
-  card.style.setProperty('--c', d.color);
-  $('#pTitle').textContent=d.title; $('#pSub').textContent=d.sub;
-  const lv=$('#pLv');
-  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; } else lv.hidden=true;
-  $('#pBody').innerHTML=d.body;
-  const dropEl=$('#pDrop');
-  if(d.drop && d.drop.trim()){ dropEl.innerHTML=d.drop; dropEl.style.display=''; }
-  else { dropEl.innerHTML=''; dropEl.style.display='none'; }
-  const ok=$('#pOk'); ok.classList.toggle('is-on', done.has(c)); ok.setAttribute('aria-pressed', done.has(c));
-  overlay.classList.add('open'); $('#closeX').focus();
+/* decoratieve krabbel-achtergrond voor de modal-kop (per kleur) */
+function headDoodle(){
+  return `<svg width="100%" height="100%" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <circle cx="40" cy="30" r="16"/><path d="M70 70 q20 -20 40 0 t40 0"/>
+    <path d="M210 24 l8 16 18 2 -13 13 4 18 -17 -9 -17 9 4 -18 -13 -13 18 -2z"/>
+    <circle cx="330" cy="40" r="22"/><path d="M300 95 h80"/><path d="M120 100 q30 -24 60 0"/>
+  </svg>`;
 }
-function close(){ overlay.classList.remove('open');
-  if(current){ const el=document.querySelector(`.doodle[data-c="${current}"]`); el&&el.focus(); } }
-function confirm(c){
-  if(done.has(c)) done.delete(c); else done.add(c);
-  render();
-  const ok=$('#pOk'); ok.classList.toggle('is-on', done.has(c)); ok.setAttribute('aria-pressed', done.has(c));
-}
-function render(){
-  order.forEach(c=>{
-    const on = done.has(c);
-    const el = document.querySelector(`.doodle[data-c="${c}"]`);
-    if(el) el.classList.toggle('done', on);                 // gesprek heeft geen tekening
-    const ch = document.querySelector(`.chip[data-c="${c}"]`);
-    if(ch) ch.classList.toggle('done', on);
-  });
-  const n=done.size, total=order.length, p=n/total;
-  $('#tangle').style.opacity = 1-p;
-  $('#calm').style.opacity   = p;
-  svg.classList.toggle('bright', n===total);
-  const prog=$('#progress');
-  if(n===0)      prog.textContent='Nog niets ingekleurd — begin bij mij of een tekening.';
-  else if(n<total) prog.textContent=`${n} van de ${total} onderdelen behandeld — de lucht klaart op…`;
-  else           prog.textContent='Alle onderdelen behandeld — de gedachtenwolk werd een zonnetje ☀️';
+function colorbookSVG(){
+  return `<svg width="100%" height="100%" viewBox="0 0 460 130" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+    <path d="M30 96 q14 -64 40 -2 q10 -54 30 0"/><circle cx="120" cy="44" r="16"/>
+    <path d="M170 92 l10 -40 22 30 18 -52 16 62"/>
+    <path d="M250 30 l7 14 16 2 -12 11 3 16 -14 -8 -14 8 3 -16 -12 -11 16 -2z"/>
+    <rect x="300" y="40" width="40" height="40" rx="6"/><path d="M360 90 q24 -50 44 0"/>
+    <circle cx="430" cy="48" r="14"/>
+  </svg>`;
 }
 
-document.querySelectorAll('.doodle.hot').forEach(el=>{
-  const c=el.dataset.c;
-  el.addEventListener('click', ()=>open(c));
-  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(c); }});
-});
-$('#pOk').addEventListener('click', ()=>confirm(current));
-$('#pClose').addEventListener('click', close);
-$('#closeX').addEventListener('click', close);
-overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const order = Object.keys(PARTS);
+const colored = new Set();   // welke schetsen zijn ingekleurd
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+let _tl=null;                // intro-timeline (zodat we 'm kunnen stoppen)
+const $ = (s,el=document)=>el.querySelector(s);
+const stage = $('#stage');
+if(window.gsap){ gsap.config({lazy:false}); }   // direct renderen i.p.v. lui (betrouwbaarder)
 
-/* ===== presentatiemodus ===== */
-const present=$('#present'), presFigure=$('#presFigure');
-let pIdx=0;
-const presDots=$('#presDots');
-order.forEach((k,i)=>{ const b=document.createElement('b'); b.addEventListener('click',()=>slide(i)); presDots.appendChild(b); });
-
-function slide(i){
-  pIdx=(i+order.length)%order.length;
-  const key=order[pIdx], d=DATA[key];
-  const src=d.img||'';
-  presFigure.classList.remove('noimg');
-  presFigure.dataset.name = (src.split('/').pop()||'');
-  presFigure.innerHTML = src
-    ? `<img class="${key==='about'?'round':''}" src="${src}" alt="" onerror="var f=this.closest('.pres-figure');f.classList.add('noimg');this.remove()">`
-    : '';
-  if(!src) presFigure.classList.add('noimg');
-  $('#presCount').textContent = `${pIdx+1} / ${order.length}`;
-  const t=$('#presTitle'); t.textContent=d.title; t.style.color=d.color;
-  $('#presSub').textContent=d.sub;
-  const lv=$('#presLv');
-  if(d.lv){ lv.hidden=false; lv.textContent='Toont gedragsindicator · '+d.lv; } else lv.hidden=true;
-  $('#presBody').innerHTML=d.body;
-  const pd=$('#presDrop');
-  if(d.drop && d.drop.trim()){ pd.innerHTML=d.drop; pd.style.display=''; } else { pd.innerHTML=''; pd.style.display='none'; }
-  [...presDots.children].forEach((b,j)=>b.classList.toggle('on', j===pIdx));
-}
-function openPresent(){ present.hidden=false; slide(0);
-  try{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }catch(e){} }
-function closePresent(){ present.hidden=true;
-  try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} }
-$('#presBtn').addEventListener('click', openPresent);
-$('#presExit').addEventListener('click', closePresent);
-$('#presPrev').addEventListener('click', ()=>slide(pIdx-1));
-$('#presNext').addEventListener('click', ()=>slide(pIdx+1));
-
-document.addEventListener('keydown', e=>{
-  if(!present.hidden){
-    if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); slide(pIdx+1); }
-    else if(e.key==='ArrowLeft'){ e.preventDefault(); slide(pIdx-1); }
-    else if(e.key==='Escape'){ closePresent(); }
+/* =====================================================================
+   SCHETSEN OP DE STAGE PLAATSEN
+   ===================================================================== */
+Object.entries(SKETCHES).forEach(([id,s])=>{
+  if(s.isCenter){
+    const k = $('#kind');
+    k.dataset.id = id;
+    k.style.cursor='pointer';
+    k.setAttribute('role','button');
+    k.setAttribute('tabindex','0');
+    k.setAttribute('aria-label', PARTS[s.part].title+' — klik om in te kleuren');
+    k.addEventListener('click',()=>onSketch(id));
+    k.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSketch(id);}});
     return;
   }
-  if(e.key==='Escape' && overlay.classList.contains('open')){ close(); return; }
-  if((e.key==='p'||e.key==='P') && !overlay.classList.contains('open')){ openPresent(); }
+  const b = document.createElement('button');
+  b.className = 'sketch';
+  b.dataset.id = id;
+  b.style.setProperty('--c', PARTS[s.part].c);
+  b.setAttribute('aria-label', PARTS[s.part].title+' — klik om in te kleuren');
+  b.innerHTML =
+    `<img src="${s.img}" alt="">` +
+    `<span class="cap">${s.cap}</span>` +
+    `<span class="tick">${TICK}</span>`;
+  b.addEventListener('click',()=>onSketch(id));
+  stage.appendChild(b);
 });
 
-render();
+const sketchEl = id => (id==='kind') ? $('#kind') : stage.querySelector(`.sketch[data-id="${id}"]`);
+
+/* posities: aparte verdeling voor mobiel (staand) zodat niets de titel/figuur overlapt */
+const MOBILE_POS = {
+  dirigent:   {l:60, t:6,  w:33, r:4 },
+  platenhoes: {l:5,  t:8,  w:28, r:-3},
+  volleybal:  {l:67, t:34, w:24, r:-5},
+  logo:       {l:5,  t:35, w:25, r:-4},
+  desprong:   {l:64, t:58, w:29, r:3 },
+  backtobeing:{l:2,  t:58, w:33, r:4 },
+  beautyx:    {l:6,  t:82, w:31, r:-3},
+  netwerken:  {l:62, t:84, w:29, r:-6}
+};
+function isMobile(){ return matchMedia('(max-width:760px)').matches; }
+function applyLayout(){
+  const mob = isMobile();
+  Object.entries(SKETCHES).forEach(([id,s])=>{
+    if(s.isCenter) return;
+    const el = stage.querySelector(`.sketch[data-id="${id}"]`);
+    if(!el) return;
+    const p = (mob && MOBILE_POS[id]) ? MOBILE_POS[id] : s;
+    el.style.left = p.l+'%'; el.style.top = p.t+'%'; el.style.width = p.w+'cqw';
+    if(!el.classList.contains('done') || !window.gsap)
+      el.style.transform = `rotate(${(p.r!=null?p.r:s.r)||0}deg)`;
+  });
+}
+applyLayout();
+let _rzT; addEventListener('resize',()=>{ clearTimeout(_rzT); _rzT=setTimeout(applyLayout,180); });
+
+/* =====================================================================
+   CHECKLIST OPBOUWEN
+   ===================================================================== */
+const checklist = $('#checklist');
+order.forEach(pid=>{
+  const p = PARTS[pid];
+  const li = document.createElement('li');
+  li.dataset.part = pid;
+  li.style.setProperty('--c', p.c);
+  const total = p.sketches.length;
+  li.innerHTML = `
+    <button type="button">
+      <span class="box">${TICK}</span>
+      <span class="lbl">${p.title}<small>${p.kicker}</small></span>
+      <span class="frac" data-frac>${total>1?('0/'+total):''}</span>
+    </button>`;
+  li.querySelector('button').addEventListener('click',()=>openPart(pid));
+  checklist.appendChild(li);
+});
+
+/* =====================================================================
+   INKLEUREN
+   ===================================================================== */
+function onSketch(id){
+  const s = SKETCHES[id];
+  const el = sketchEl(id);
+  if(!colored.has(id)){
+    colored.add(id);
+    el.classList.add('done');
+    if(id==='kind'){ // centrale figuur naar kleur (filter via .done in CSS)
+      $('.ring',el).style.opacity='.55';
+      $('.ring',el).style.borderColor='var(--c-inzicht)';
+    } else {
+      pulse(el, s.r||0);
+    }
+    refresh();
+  }
+  openPart(s.part);
+}
+
+function pulse(el, rot){
+  if(reduce||!window.gsap) return;
+  gsap.fromTo(el,{scale:.94},{scale:1,rotate:rot,duration:.6,ease:'elastic.out(1,.5)'});
+}
+function gsapTo(el,vars){ if(window.gsap&&!reduce) gsap.to(el,{ease:'power2.out',...vars}); else applyDone(el); }
+function applyDone(el){ el.style.filter='grayscale(0)'; }
+
+/* =====================================================================
+   POP-UP
+   ===================================================================== */
+const overlay=$('#overlay'), modal=$('#modal');
+let currentPart=null, lastFocus=null;
+
+function partImgs(pid){
+  return PARTS[pid].sketches.map(sid=>{
+    const s=SKETCHES[sid];
+    const done = colored.has(sid)?'':'style="filter:grayscale(1) opacity(.7)"';
+    return `<figure><img src="${s.img}" alt="" ${done}><figcaption>${s.cap}</figcaption></figure>`;
+  }).join('');
+}
+
+function eviHTML(e){
+  if(e.type==='photo'){
+    return `<a class="evi photo" href="${e.href}" target="_blank" rel="noopener" aria-label="${e.label}">
+      <img src="${e.href}" alt="${e.label}"></a>`;
+  }
+  const ic = e.type==='link'?LINK_IC:PDF_IC;
+  return `<a class="evi" href="${e.href}" target="_blank" rel="noopener">
+    <span class="ic">${ic}</span>
+    <span><b>${e.label}</b>${e.sub?`<small>${e.sub}</small>`:''}</span></a>`;
+}
+
+function openPart(pid){
+  const p = PARTS[pid];
+  currentPart = pid;
+  lastFocus = document.activeElement;
+  modal.style.setProperty('--c', p.c);
+  $('#mChip').textContent = p.nr;
+  $('#mKicker').textContent = p.kicker;
+  $('#mTitle').textContent = p.title;
+  $('#mSub').textContent = p.sub;
+  { const _b=$('.m-badge'); if(p.lv){ _b.textContent='Lerend Vermogen · '+p.lv; _b.style.display=''; } else { _b.style.display='none'; } }
+  $('#doodlebg').innerHTML = headDoodle();
+  $('#mBody').innerHTML =
+    `<div class="m-sketches">${partImgs(pid)}</div>` +
+    p.body +
+    (p.quote?`<div class="m-quote">${p.quote}</div>`:'') +
+    (p.evidence&&p.evidence.length?`<div class="m-evi-h">Bewijs</div><div class="m-evidence">${p.evidence.map(eviHTML).join('')}</div>`:'');
+
+  // bevestig-knop weerspiegelt staat
+  const allDone = p.sketches.every(s=>colored.has(s));
+  const cf = $('#mConfirm');
+  cf.classList.toggle('is-on', allDone);
+  cf.innerHTML = allDone ? `${TICK} Afgevinkt` : 'Zo is het, kleur in';
+
+  // navigatie
+  const i = order.indexOf(pid);
+  $('#mPrev').disabled = i===0;
+  $('#mNext').disabled = i===order.length-1;
+
+  if(!overlay.classList.contains('open')){
+    overlay.classList.add('open');
+    if(window.gsap&&!reduce){
+      gsap.fromTo(modal,{y:24,scale:.96,opacity:0},{y:0,scale:1,opacity:1,duration:.4,ease:'back.out(1.5)'});
+    }
+  } else if(window.gsap&&!reduce){
+    gsap.fromTo(modal,{opacity:.4},{opacity:1,duration:.25});
+  }
+  modal.scrollTop=0;
+  $('#closeX').focus();
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  if(lastFocus&&lastFocus.focus) lastFocus.focus();
+}
+
+$('#mConfirm').addEventListener('click',()=>{
+  const p=PARTS[currentPart];
+  p.sketches.forEach(sid=>{
+    if(!colored.has(sid)){
+      colored.add(sid);
+      const el=sketchEl(sid); el.classList.add('done');
+      if(sid==='kind'){ $('.ring',el).style.opacity='.55'; }
+      else pulse(el, SKETCHES[sid].r||0);
+    }
+  });
+  refresh();
+  const cf=$('#mConfirm'); cf.classList.add('is-on'); cf.innerHTML=`${TICK} Afgevinkt`;
+});
+
+$('#mPrev').addEventListener('click',()=>{const i=order.indexOf(currentPart); if(i>0) openPart(order[i-1]);});
+$('#mNext').addEventListener('click',()=>{const i=order.indexOf(currentPart); if(i<order.length-1) openPart(order[i+1]);});
+$('#closeX').addEventListener('click',closeModal);
+overlay.addEventListener('click',e=>{if(e.target===overlay) closeModal();});
+
+/* =====================================================================
+   VOORTGANG BIJWERKEN
+   ===================================================================== */
+function refresh(){
+  let doneParts=0;
+  order.forEach(pid=>{
+    const p=PARTS[pid];
+    const n=p.sketches.filter(s=>colored.has(s)).length;
+    const total=p.sketches.length;
+    const li=checklist.querySelector(`li[data-part="${pid}"]`);
+    const full = n===total;
+    li.classList.toggle('done', full);
+    const frac=li.querySelector('[data-frac]');
+    if(total>1) frac.textContent = full?'':(n+'/'+total);
+    if(full) doneParts++;
+  });
+  const pct = doneParts/order.length;
+  $('#meter').style.width = (pct*100)+'%';
+  $('#ptFrac').textContent = doneParts+'/'+order.length;
+
+  // kleurenwereld komt geleidelijk op
+  const coloredFrac = colored.size/Object.keys(SKETCHES).length;
+  $('#bgColor').style.opacity = (0.12 + 0.88*coloredFrac).toFixed(3);
+
+  $('#panel').classList.toggle('complete', doneParts===order.length);
+  if(doneParts===order.length && !refresh._done){ refresh._done=true; celebrate(); }
+}
+
+/* =====================================================================
+   SLOTVIERING
+   ===================================================================== */
+function celebrate(){
+  // centrale figuur full glow
+  const k=$('#kind'); $('.ring',k).style.opacity='.8';
+  if(reduce||!window.gsap) return;
+  const colors=['#e8743b','#e3ab1f','#d6457e','#3f9f54','#2f86c9','#fff'];
+  const wrap=document.createElement('div'); wrap.className='confetti'; document.body.appendChild(wrap);
+  for(let i=0;i<90;i++){
+    const c=document.createElement('div');
+    const sz=6+Math.random()*8;
+    c.style.cssText=`position:absolute;top:-20px;left:${Math.random()*100}%;width:${sz}px;height:${sz*0.5}px;
+      background:${colors[i%colors.length]};border-radius:2px;opacity:.9`;
+    wrap.appendChild(c);
+    gsap.to(c,{y:window.innerHeight+60,x:(Math.random()-.5)*260,rotation:Math.random()*720,
+      duration:2.4+Math.random()*1.8,ease:'power1.in',delay:Math.random()*.5,
+      onComplete:()=>c.remove()});
+  }
+  setTimeout(()=>wrap.remove(),5200);
+}
+
+/* =====================================================================
+   ABOUT / KLEURPLAAT
+   ===================================================================== */
+const aboutOverlay=$('#aboutOverlay');
+$('#colorbook').innerHTML=colorbookSVG();
+function openAbout(){ aboutOverlay.classList.add('open');
+  if(window.gsap&&!reduce) gsap.fromTo($('.about-modal'),{y:24,scale:.96,opacity:0},{y:0,scale:1,opacity:1,duration:.4,ease:'back.out(1.5)'});
+  $('#aboutClose').focus();}
+function closeAbout(){ aboutOverlay.classList.remove('open'); }
+$('#aboutBtn').addEventListener('click',openAbout);
+$('#aboutClose').addEventListener('click',closeAbout);
+$('#aboutStart').addEventListener('click',closeAbout);
+aboutOverlay.addEventListener('click',e=>{if(e.target===aboutOverlay) closeAbout();});
+
+/* sluiten met Escape */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if(overlay.classList.contains('open')) closeModal();
+  else if(aboutOverlay.classList.contains('open')) closeAbout();
+});
+
+/* focus-trap (lichtgewicht) */
+function trap(e){
+  const open = overlay.classList.contains('open') ? modal
+             : aboutOverlay.classList.contains('open') ? $('.about-modal') : null;
+  if(!open||e.key!=='Tab') return;
+  const f=open.querySelectorAll('a[href],button:not([disabled]),[tabindex]');
+  if(!f.length) return;
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+}
+document.addEventListener('keydown',trap);
+
+/* mobiel paneel */
+$('#panelToggle').addEventListener('click',()=>{
+  const p=$('#panel'); const open=p.classList.toggle('show');
+  $('#panelToggle').setAttribute('aria-expanded',open);
+});
+
+/* =====================================================================
+   ACHTERGROND inladen (via JS zodat we onerror kunnen afhandelen)
+   ===================================================================== */
+(function(){
+  const img=new Image();
+  img.onload=()=>{ document.getElementById('bgColor').style.setProperty('--bg-img',`url("assets/achtergrond.jpg")`); };
+  img.src='assets/achtergrond.jpg';
+})();
+
+/* =====================================================================
+   INTRO-ANIMATIE
+   ===================================================================== */
+function runIntro(){
+  refresh();
+  document.body.classList.remove('pending');   // vanaf nu is de eindstaat zichtbaar via CSS
+  if(!window.gsap || reduce){ forceEndState(); return; }
+
+  gsap.set('#kind',{opacity:0,scale:.92,y:8});  // verberg de foto tot de stop-motion onthulling
+  _tl=gsap.timeline({onComplete:()=>{ _introDone=true; }});
+  const tl=_tl;
+  tl.from('#brand',{opacity:0,y:-8,duration:.6,ease:'power2.out'},.1)
+    // titel: komt op en wordt groter, daarna settelt 'ie iets kleiner
+    .from('#titel',{opacity:0,scale:.55,y:72,duration:.85,ease:'power3.out'},.2)
+    .to('#titel',{scale:1.1,duration:.4,ease:'power2.out'},'-=.18')
+    .to('#titel',{scale:1,y:0,duration:.5,ease:'power2.inOut'})
+    // centrale foto: stop-motion onthulling
+    .add(stopMotionReveal('#kind'),'-=.15')
+    .from('#kind .name-tag',{opacity:0,scale:.6,duration:.3,ease:'back.out(2)'},'-=.05')
+    .from('#panel',{opacity:0,y:-12,duration:.5,ease:'power2.out'},'-=.55')
+    // schetsen poppen één voor één in (rotatie blijft behouden)
+    .from(stage.querySelectorAll('.sketch'),{opacity:0,scale:.4,duration:.55,ease:'back.out(1.7)',stagger:.08},'-=.2')
+    .from('#hint',{opacity:0,duration:.5},'-=.1');
+
+  // zachte 'adem' op de hint
+  gsap.to('#hint',{scale:1.04,repeat:-1,yoyo:true,duration:1.6,ease:'sine.inOut',delay:3});
+}
+
+function stopMotionReveal(sel){
+  const el=$(sel);
+  const tl=gsap.timeline();
+  const steps=[0,.18,.35,.5,.68,.82,1];
+  steps.forEach((o,idx)=>{
+    tl.set(el,{opacity:o, x:(Math.random()-.5)*5, rotation:(Math.random()-.5)*2.4, scale:.96+o*.05},idx*0.085);
+  });
+  tl.to(el,{x:0,rotation:0,scale:1,opacity:1,duration:.25,ease:'power2.out'});
+  return tl;
+}
+
+let _introRan=false, _introDone=false;
+function startIntro(){ if(_introRan||_introDone) return; _introRan=true; runIntro(); }
+
+/* forceer de eindstaat (zonder animatie). Vangnet als GSAP faalt of de
+   browser requestAnimationFrame pauzeert, plus de reduced-motion route. */
+function forceEndState(){
+  _introDone=true; _introRan=true;
+  document.body.classList.remove('pending');
+  const els=['#brand','#titel','#kind','#panel','#hint','#kind .name-tag']
+            .map(s=>$(s)).filter(Boolean);
+  stage.querySelectorAll('.sketch').forEach(e=>els.push(e));
+  if(window.gsap){
+    if(_tl){_tl.kill();_tl=null;}
+    // alleen opacity/transform vrijgeven, NIET width (cqw) — anders vallen schetsen terug op natuurlijke grootte
+    try{ gsap.killTweensOf('*'); gsap.set(els,{clearProps:'opacity,transform,scale,x,y,rotation'}); }catch(e){}
+  }
+  // alles zichtbaar (CSS-default is zichtbaar) en schets-rotaties terugzetten
+  els.forEach(e=>{ e.style.opacity='1'; });
+  stage.querySelectorAll('.sketch').forEach(e=>{
+    e.style.transform=`rotate(${(SKETCHES[e.dataset.id]||{}).r||0}deg)`;
+  });
+}
+
+if(document.readyState==='complete') startIntro();
+else window.addEventListener('load',startIntro);
+setTimeout(startIntro,1500);                                  // vangnet: trage load
+setTimeout(()=>{ if(!_introDone) forceEndState(); },4500);    // vangnet: gepauzeerde rAF / GSAP-fout
 </script>
 </body>
 </html>
